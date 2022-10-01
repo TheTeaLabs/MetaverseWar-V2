@@ -1,7 +1,6 @@
-from sqlalchemy import Column, String, DateTime, func, Integer, Float, ForeignKey, Boolean, Text
+from sqlalchemy import Column, String, Integer, Text
 
 from models import Base, engine
-from models.user import UserModel
 
 
 class ScenarioModel(Base):
