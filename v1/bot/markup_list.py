@@ -19,7 +19,7 @@ def init_markup():
 
 status_main = InlineKeyboardMarkup([
     [InlineKeyboardButton('보유 병사', callback_data="status_soldier_main"),
-     InlineKeyboardButton('보유 장비', callback_data="status_equipment_main")],
+     InlineKeyboardButton('보유 장비(준비 중)', callback_data="status_equipment_main")],
     [InlineKeyboardButton('전투 병사 해제', callback_data="status_quit_soldier_order")],
     [InlineKeyboardButton('이전 으로', callback_data="init")]
 ])

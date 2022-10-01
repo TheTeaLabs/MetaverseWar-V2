@@ -16,6 +16,7 @@ from bot.status import bot_status
 from env import BOT_TOKEN
 from models.soldier import SoldierModel
 from models.user import UserModel
+from util.battle_util import match_making, battle, battle_msg
 
 updater = Updater(token=BOT_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
@@ -68,14 +69,24 @@ Contact : @gryptogolo
                 )
 
 
-task_buttons_handler = CommandHandler('start', init_state)
+def battle_state(update, context):
+    print(update.message.message_id)
+    print(update.message.chat_id)
+    match = match_making(update.message.from_user.id)
+    battle_ = battle(match['user'], match['opponent'])
+    battle_msg(update, context, battle_, 'pvp')
+    return
 
-dispatcher.add_handler(task_buttons_handler)
+
+start_handler = CommandHandler('start', init_state)
+battle_handler = CommandHandler('battle', battle_state)
+
+dispatcher.add_handler(start_handler)
+dispatcher.add_handler(battle_handler)
 
 
 def callback_get(update, context):
     # 초기 화면
-    print(update.callback_query.data)
     if update.callback_query.data == "init":
         with db():
             db_user = db.session.query(UserModel).filter(
@@ -103,8 +114,6 @@ def callback_get(update, context):
 
     elif str(update.callback_query.data).startswith("status"):
         bot_status(update, context)
-    # elif str(update.callback_query.data).startswith("pvp"):
-    #     bot_pvp(update, context)
     # elif str(update.callback_query.data).startswith("scenario"):
     #     bot_scenario(update, context)
     # elif str(update.callback_query.data).startswith("ranking"):
