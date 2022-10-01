@@ -12,6 +12,7 @@ from telegram.ext import CommandHandler
 # from bot.game_scenario import bot_scenario
 from bot.markup_list import init_markup, register_markup
 # from bot.ranking import bot_ranking
+from bot.shop import bot_shop
 from bot.status import bot_status
 from env import BOT_TOKEN
 from models.soldier import SoldierModel
@@ -114,6 +115,8 @@ def callback_get(update, context):
 
     elif str(update.callback_query.data).startswith("status"):
         bot_status(update, context)
+    elif str(update.callback_query.data).startswith("shop"):
+        bot_shop(update, context)
     # elif str(update.callback_query.data).startswith("scenario"):
     #     bot_scenario(update, context)
     # elif str(update.callback_query.data).startswith("ranking"):

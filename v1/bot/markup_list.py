@@ -10,8 +10,7 @@ register_markup = InlineKeyboardMarkup([
 def init_markup():
     markup = InlineKeyboardMarkup([
         [InlineKeyboardButton('내 정보', callback_data="status_main")],
-        [InlineKeyboardButton('상점',
-                              url="https://pala.world/square/project/01E4495739485AFa86dff3D1003DE7aFc424264D")],
+        [InlineKeyboardButton('상점', callback_data="shop_main")],
         [InlineKeyboardButton('랭킹', callback_data="ranking_1")]
     ])
     return markup
@@ -80,3 +79,10 @@ def status_soldier_quit_order():
         button_list
     )
     return status_soldier
+
+
+shop_main = InlineKeyboardMarkup([
+    [InlineKeyboardButton('병사 구매', callback_data="shop_soldier")],
+    [InlineKeyboardButton('장비 구매(준비중)', callback_data="shop_equipment")],
+    [InlineKeyboardButton('이전 으로', callback_data="init")]
+])

@@ -140,8 +140,8 @@ def soldier_status_text(db_user: UserModel):
     if soldier1_info:
         text += f"1번째 전투 병사 정보: \n" \
                 f"병사 이름 : {soldier1_info.name}\n" \
-                f"클래스 : {soldier1_info.class_}\n" \
-                f"희귀도 : {soldier1_info.rarity}\n" \
+                f"클래스 : {soldier1_info.class_.value}\n" \
+                f"희귀도 : {soldier1_info.rarity.value}\n" \
                 f"공격력 : {soldier1_info.stat_atk}\n" \
                 f"방어력 : {soldier1_info.stat_def}\n\n"
     else:
@@ -149,15 +149,15 @@ def soldier_status_text(db_user: UserModel):
     if soldier2_info:
         text += f"2번째 전투 병사 정보: \n" \
                 f"병사 이름 : {soldier2_info.name}\n" \
-                f"클래스 : {soldier2_info.class_}\n" \
-                f"희귀도 : {soldier2_info.rarity}\n" \
+                f"클래스 : {soldier2_info.class_.value}\n" \
+                f"희귀도 : {soldier2_info.rarity.value}\n" \
                 f"공격력 : {soldier2_info.stat_atk}\n" \
                 f"방어력 : {soldier2_info.stat_def}\n\n"
     if soldier3_info:
         text += f"3번째 전투 병사 정보: \n" \
                 f"병사 이름 : {soldier3_info.name}\n" \
-                f"클래스 : {soldier3_info.class_}\n" \
-                f"희귀도 : {soldier3_info.rarity}\n" \
+                f"클래스 : {soldier3_info.class_.value}\n" \
+                f"희귀도 : {soldier3_info.rarity.value}\n" \
                 f"공격력 : {soldier3_info.stat_atk}\n" \
                 f"방어력 : {soldier3_info.stat_def}\n"
     return text
@@ -166,8 +166,8 @@ def soldier_status_text(db_user: UserModel):
 def soldier_text(soldier: SoldierModel):
     text = f"전투 병사 정보: \n" \
            f"병사 이름 : {soldier.name}\n" \
-           f"클래스 : {soldier.class_}\n" \
-           f"희귀도 : {soldier.rarity}\n" \
+           f"클래스 : {soldier.class_.value}\n" \
+           f"희귀도 : {soldier.rarity.value}\n" \
            f"공격력 : {soldier.stat_atk}\n" \
            f"방어력 : {soldier.stat_def}\n"
     return text
