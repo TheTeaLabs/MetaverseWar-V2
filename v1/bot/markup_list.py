@@ -1,16 +1,26 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
+from models.user import UserModel
+
 register_markup = InlineKeyboardMarkup([
     [InlineKeyboardButton('회원가입', callback_data="init_register")]
 ])
 
 
-def init_markup():
-    markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton('내 정보', callback_data="status_main")],
-        [InlineKeyboardButton('상점', callback_data="shop_main")],
-        [InlineKeyboardButton('랭킹', callback_data="ranking_1")]
-    ])
+def init_markup(db_user: UserModel):
+    if not db_user.wallet_address:
+        markup = InlineKeyboardMarkup([
+            [InlineKeyboardButton('내 정보', callback_data="status_main")],
+            [InlineKeyboardButton('상점', callback_data="shop_main")],
+            [InlineKeyboardButton('랭킹', callback_data="ranking_1")],
+            [InlineKeyboardButton('Klay 지갑 연동', url=f"https://login.metaversewar.app/?chat_id={db_user.chat_id}")]
+        ])
+    else:
+        markup = InlineKeyboardMarkup([
+            [InlineKeyboardButton('내 정보', callback_data="status_main")],
+            [InlineKeyboardButton('상점', callback_data="shop_main")],
+            [InlineKeyboardButton('랭킹', callback_data="ranking_1")]
+        ])
     return markup
 
 

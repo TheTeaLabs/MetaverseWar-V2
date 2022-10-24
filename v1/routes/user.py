@@ -3,32 +3,93 @@ from fastapi_sqlalchemy import db
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 
-from bot import BOT
+from models.equipment import EquipmentModel
+from models.soldier import SoldierModel
 from models.user import UserModel
+from util.kas_util import get_user_soldier_nft, get_armor_nft, get_weapon_nft
 
 user_router = APIRouter(prefix='/user', tags=["User"])
 
 
-class UserCreate(BaseModel):
+class UserInfo(BaseModel):
     """
     base schema
     """
     chat_id: str
     wallet_address: str
-    # wallet_type: str = "klip"
+    wallet_type: str = "klip"
 
 
 @user_router.post('/')
-def create_user(chat_id: str):
+def set_user_wallet_info(user_info: UserInfo):
     """
-    create user
+    set user wallet address
     """
-    user = UserModel(chat_id=chat_id)
-    db.session.add(user)
+    db_user = db.session.query(UserModel).filter(
+        UserModel.chat_id == user_info.chat_id).one_or_none()
+    db_user.wallet_address = user_info.wallet_address
+    db_user.wallet_type = user_info.wallet_type
     try:
         db.session.commit()
     except IntegrityError as error:
         raise HTTPException(status_code=400, detail=error.args) from error
-    db.session.refresh(user)
-    BOT.sendMessage(chat_id=chat_id, text="계정이 생성되었습니다. /start 로 게임을 시작해주세요!")
-    return user.__dict__
+    db.session.refresh(db_user)
+    soldier_nft_list = get_user_soldier_nft(db_user.wallet_address)
+    for nft in soldier_nft_list:
+        soldier = SoldierModel(from_nft=True,
+                               chat_id=db_user.chat_id,
+                               token_id=nft['token_id'],
+                               name=nft['basic']['title'] + " " + str(nft['token_id']),
+                               nation=nft['basic']['nation'],
+                               rarity=nft['basic']['rarity'],
+                               class_=nft['basic']['class'],
+                               star=nft['basic']['star'],
+                               enlist_count=nft['basic']['enlist_count'],
+                               stat_atk=nft['stats']['atk'],
+                               stat_def=nft['stats']['def'],
+                               stat_skill=nft['stats']['skill'] if nft['stats']['skill'] != 'None' else None
+                               )
+        try:
+            db.session.add(soldier)
+            db.session.flush()
+        except IntegrityError as e:
+            db.session.rollback()
+            continue
+    armor_nft_list = get_armor_nft(db_user.wallet_address)
+    for nft in armor_nft_list:
+        equipment = EquipmentModel(from_nft=True,
+                                   token_id=nft['token_id'],
+                                   chat_id=db_user.chat_id,
+                                   name=nft['basic']['title'],
+                                   type=nft['basic']['part_type'],
+                                   class_=nft['basic']['class'],
+                                   star=nft['basic']['star'],
+                                   stat_atk=nft['stats']['atk'],
+                                   stat_def=nft['stats']['def'],
+                                   stat_skill=nft['stats']['skill'] if nft['stats']['skill'] != 'None' else None)
+        try:
+            db.session.add(equipment)
+            db.session.flush()
+        except IntegrityError as e:
+            db.session.rollback()
+            continue
+    weapon_nft_list = get_weapon_nft(db_user.wallet_address)
+    for nft in weapon_nft_list:
+        weapon = EquipmentModel(from_nft=True,
+                                token_id=nft['token_id'],
+                                chat_id=db_user.chat_id,
+                                name=nft['basic']['title'],
+                                type="Weapon",
+                                class_=nft['basic']['class'],
+                                star=nft['basic']['star'],
+                                stat_atk=nft['stats']['atk'],
+                                stat_def=nft['stats']['def'],
+                                stat_skill=nft['stats']['skill'] if nft['stats']['skill'] != 'None' else None)
+        try:
+            db.session.add(weapon)
+            db.session.flush()
+        except IntegrityError as e:
+            db.session.rollback()
+            continue
+    db.session.commit()
+    return

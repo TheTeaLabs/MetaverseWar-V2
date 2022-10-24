@@ -10,7 +10,7 @@ class UserModel(Base):
     last_name = Column(String(255))
 
     wallet_address = Column(String(42), unique=True)
-    # wallet_type = Column(String(16))
+    wallet_type = Column(String(16))
 
     main_soldier = Column(Integer)
     main_soldier2 = Column(Integer)

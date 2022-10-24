@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Column, Integer, String, ForeignKey, func, Enum, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, func, Enum, DateTime, Boolean
 
 from models import Base, engine
 from models.user import UserModel
@@ -28,6 +28,8 @@ class SoldierClass(enum.Enum):
 class SoldierModel(Base):
     __tablename__ = "soldier"
     idx = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
+    from_nft = Column(Boolean, default=False)
+    token_id = Column(Integer, unique=True)
     chat_id = Column(String(36), ForeignKey(UserModel.chat_id))
     name = Column(String(255))
     nation = Column(Enum(SoldierNation))

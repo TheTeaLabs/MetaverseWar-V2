@@ -25,7 +25,6 @@ BOT = telegram.Bot(BOT_TOKEN)
 
 # start 를 눌렀을때 화면 init 과 동일시 해야함
 def init_state(update, context):
-    print(update)
     text = """
     <b>&lt;최초 &gt;</b> 텔레그램 봇 기반의 NFT 게임 메타버스워!
 
@@ -64,7 +63,7 @@ Contact : @gryptogolo
                 context.bot.send_message(
                     chat_id=update.message.chat_id, parse_mode='HTML'
                     , text=text
-                    , reply_markup=init_markup()
+                    , reply_markup=init_markup(db_user)
                 )
 
 
@@ -74,6 +73,7 @@ def battle_state(update, context):
     if not db_user.main_soldier:
         context.bot.send_message(text=f"{db_user.first_name} {db_user.last_name} should set main soldier first",
                                  chat_id=update.message.chat_id)
+        return
     match = match_making(update.message.from_user.id, db_user)
     battle_ = battle(match['user'], match['opponent'])
     battle_msg(update, context, battle_, 'pvp', match['user_info'], match['opponent_info'])
@@ -99,7 +99,7 @@ def callback_get(update, context):
             context.bot.edit_message_text(text=text, parse_mode='HTML',
                                           chat_id=update.callback_query.message.chat_id,
                                           message_id=update.callback_query.message.message_id,
-                                          reply_markup=init_markup())
+                                          reply_markup=init_markup(db_user))
     elif update.callback_query.data == "init_register":
         with db():
             user = UserModel(chat_id=update.callback_query.message.chat_id,
