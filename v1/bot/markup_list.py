@@ -78,11 +78,13 @@ def status_soldier_select_order(soldier_idx: int):
 
 
 def status_soldier_quit_order():
-    button_list = [[InlineKeyboardButton("1번째 병사", callback_data=f'status_quit_soldier_unset_1'),
-                    InlineKeyboardButton("2번째 병사",
-                                         callback_data=f'status_quit_soldier_unset_2'),
-                    InlineKeyboardButton("3번째 병사",
-                                         callback_data="status_quit_soldier_unset_3")],
+    button_list = [[InlineKeyboardButton("1번째 병사", callback_data=f'status_quit_soldier_unset_1')
+                    ],
+                   # ,
+                   # InlineKeyboardButton("2번째 병사",
+                   #                      callback_data=f'status_quit_soldier_unset_2'),
+                   # InlineKeyboardButton("3번째 병사",
+                   #                      callback_data="status_quit_soldier_unset_3")],
                    [InlineKeyboardButton('이전 으로', callback_data="status_main")]]
     status_soldier = InlineKeyboardMarkup(
         button_list

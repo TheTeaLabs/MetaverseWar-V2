@@ -12,14 +12,14 @@ def bot_shop(update, context):
                                       chat_id=update.callback_query.message.chat_id,
                                       message_id=update.callback_query.message.message_id,
                                       reply_markup=shop_main)
-    elif purpose == "soldier":
-        soldier = create_soldier(update)
-        text = soldier_text(soldier)
-        text += "병사 구매완료"
-        context.bot.edit_message_text(text=text,
-                                      chat_id=update.callback_query.message.chat_id,
-                                      message_id=update.callback_query.message.message_id,
-                                      reply_markup=shop_main)
+    # elif purpose == "soldier":
+        # soldier = create_soldier(update)
+        # text = soldier_text(soldier)
+        # text += "병사 구매완료"
+        # context.bot.edit_message_text(text=text,
+        #                               chat_id=update.callback_query.message.chat_id,
+        #                               message_id=update.callback_query.message.message_id,
+        #                               reply_markup=shop_main)
     return
 
 

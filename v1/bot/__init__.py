@@ -17,6 +17,7 @@ from bot.status import bot_status
 from env import BOT_TOKEN
 from models.user import UserModel
 from util.battle_util import match_making, battle, battle_msg
+from util.soldier_util import create_soldier
 
 updater = Updater(token=BOT_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
@@ -112,6 +113,7 @@ def callback_get(update, context):
             except IntegrityError as error:
                 raise error
             db.session.refresh(user)
+            create_soldier(update)
             BOT.sendMessage(chat_id=update.callback_query.message.chat_id,
                             text="계정이 생성되었습니다. /start 로 게임을 시작해주세요!")
 

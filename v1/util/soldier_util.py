@@ -17,7 +17,7 @@ def get_soldier_info(idx: int):
 def create_soldier(update):
     with db():
         nation = random.choice(list(SoldierNation)).value
-        rarity = random.choice(list(SoldierRarity)).value
+        rarity = SoldierRarity.Common.value
         class_ = random.choice(list(SoldierClass)).value
         soldier = SoldierModel(chat_id=update.callback_query.message.chat_id,
                                name=nation + class_ + str(random.randint(10000, 99999)),
