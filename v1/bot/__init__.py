@@ -88,6 +88,7 @@ dispatcher.add_handler(battle_handler)
 
 
 def callback_get(update, context):
+    print(update.callback_query.data)
     # 초기 화면
     if update.callback_query.data == "init":
         with db():

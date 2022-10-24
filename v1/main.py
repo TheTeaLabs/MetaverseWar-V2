@@ -1,12 +1,14 @@
 """
 메인
 """
+import threading
 
 from fastapi import FastAPI
 from fastapi_sqlalchemy import DBSessionMiddleware
 # from mangum import Mangum
 from starlette.middleware.cors import CORSMiddleware
 
+from bot import updater
 from models import SQLALCHEMY_DATABASE_URL
 from routes.user import user_router
 
@@ -24,6 +26,8 @@ app.add_middleware(DBSessionMiddleware,
 
 app.include_router(user_router)
 
+t = threading.Thread(target=updater.start_polling)
+t.start()
 
 
 @app.get("/")

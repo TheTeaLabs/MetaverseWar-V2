@@ -56,7 +56,6 @@ def set_user_wallet_info(user_info: UserInfo):
             db.session.rollback()
             continue
 
-
     armor_nft_list = get_armor_nft(user_info.wallet_address)
     for nft in armor_nft_list:
         equipment = EquipmentModel(from_nft=True,

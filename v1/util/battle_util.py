@@ -23,8 +23,8 @@ def match_making(chat_id: str, db_user: UserModel):
 
 
 def battle(my_soldier: SoldierModel, enemy_soldier: SoldierModel):
-    # my_soldier = set_equip(my_soldier)
-    # enemy_soldier = set_equip(enemy_soldier)
+    my_soldier = my_soldier.set_equipment()
+    enemy_soldier = enemy_soldier.set_equipment()
     winner = None
     # 선공 정하기
     if my_soldier.stat_def + my_soldier.stat_atk <= enemy_soldier.stat_def + \

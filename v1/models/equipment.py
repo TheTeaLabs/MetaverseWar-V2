@@ -40,5 +40,13 @@ class EquipmentModel(Base):
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
 
+    def class_to_kr(self):
+        if self.class_ == EquipmentClass.Archer:
+            return '궁병'
+        elif self.class_ == EquipmentClass.Cavalry:
+            return '기병'
+        elif self.class_ == EquipmentClass.Infantry:
+            return '보병'
+
 
 EquipmentModel.__table__.create(bind=engine, checkfirst=True)

@@ -9,6 +9,8 @@ def get_soldier_info(idx: int):
     with db():
         db_soldier = db.session.query(SoldierModel).filter(
             SoldierModel.idx == idx).one_or_none()
+        if db_soldier:
+            db_soldier = db_soldier.set_equipment()
         return db_soldier
 
 
