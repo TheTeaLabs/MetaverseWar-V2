@@ -1,7 +1,5 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
-from models.user import UserModel
-
 register_markup = InlineKeyboardMarkup([
     [InlineKeyboardButton('회원가입', callback_data="init_register")]
 ])
@@ -52,14 +50,12 @@ status_soldier_detail = InlineKeyboardMarkup([
 
 
 def status_soldier_select_order(soldier_idx: int):
-    button_list = []
-    button_list.append(
-        [InlineKeyboardButton("1번째 병사", callback_data=f'status_select_soldier_set_{soldier_idx}_1'),
-         InlineKeyboardButton("2번째 병사",
-                              callback_data=f'status_select_soldier_set_{soldier_idx}_2'),
-         InlineKeyboardButton("3번째 병사",
-                              callback_data=f'status_select_soldier_set_{soldier_idx}_3')])
-    button_list.append([InlineKeyboardButton('이전 으로', callback_data="status_main")])
+    button_list = [[InlineKeyboardButton("1번째 병사", callback_data=f'status_select_soldier_set_{soldier_idx}_1'),
+                    InlineKeyboardButton("2번째 병사",
+                                         callback_data=f'status_select_soldier_set_{soldier_idx}_2'),
+                    InlineKeyboardButton("3번째 병사",
+                                         callback_data=f'status_select_soldier_set_{soldier_idx}_3')],
+                   [InlineKeyboardButton('이전 으로', callback_data="status_main")]]
     status_soldier = InlineKeyboardMarkup(
         button_list
     )
@@ -67,14 +63,12 @@ def status_soldier_select_order(soldier_idx: int):
 
 
 def status_soldier_quit_order():
-    button_list = []
-    button_list.append(
-        [InlineKeyboardButton("1번째 병사", callback_data=f'status_quit_soldier_unset_1'),
-         InlineKeyboardButton("2번째 병사",
-                              callback_data=f'status_quit_soldier_unset_2'),
-         InlineKeyboardButton("3번째 병사",
-                              callback_data="status_quit_soldier_unset_3")])
-    button_list.append([InlineKeyboardButton('이전 으로', callback_data="status_main")])
+    button_list = [[InlineKeyboardButton("1번째 병사", callback_data=f'status_quit_soldier_unset_1'),
+                    InlineKeyboardButton("2번째 병사",
+                                         callback_data=f'status_quit_soldier_unset_2'),
+                    InlineKeyboardButton("3번째 병사",
+                                         callback_data="status_quit_soldier_unset_3")],
+                   [InlineKeyboardButton('이전 으로', callback_data="status_main")]]
     status_soldier = InlineKeyboardMarkup(
         button_list
     )
