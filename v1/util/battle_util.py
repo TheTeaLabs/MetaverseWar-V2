@@ -130,7 +130,8 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
     # 전투 개시
     for log in battle_log:
         turn = f"<strong>{user_info.get_fullname()}</strong> \t {opponent_info.get_fullname()}" \
-            if log['turn'] == 'user' else f"{user_info.get_fullname()} \t<strong>{opponent_info.get_fullname()}</strong>"
+            if log[
+                   'turn'] == 'user' else f"{user_info.get_fullname()} \t<strong>{opponent_info.get_fullname()}</strong>"
         text = f"{turn}\n" \
                f"<b>{log['user_hp']}</b> \t\t\t\t\t <b>{log['opponent_hp']}</b> \n" \
                f"{'크리티컬!' if log['crit'] else ''}\n" \
@@ -180,8 +181,6 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
                                   chat_id=init_message.chat.id,
                                   message_id=init_message.message_id)
     return
-
-
 
 
 class SynergyData:
