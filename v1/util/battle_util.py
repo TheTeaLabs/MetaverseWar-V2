@@ -3,26 +3,23 @@ import time
 
 from fastapi_sqlalchemy import db
 from sqlalchemy import func
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 from models.soldier import SoldierModel
 from models.user import UserModel
 from util.soldier_util import get_soldier_info
 
 
-def match_making(chat_id: str):
+def match_making(chat_id: str, db_user: UserModel):
     with db():
-        db_user = db.session.query(UserModel).filter(UserModel.chat_id == chat_id).one_or_none()
-        if db_user:
-            get_match_list = db.session.query(UserModel).filter(
-                (UserModel.chat_id != chat_id) & (UserModel.main_soldier.is_not(None))).order_by(
-                func.abs(UserModel.pvp_rating - db_user.pvp_rating)).limit(50).all()
+        get_match_list = db.session.query(UserModel).filter(
+            (UserModel.chat_id != chat_id) & (UserModel.main_soldier.is_not(None))).order_by(
+            func.abs(UserModel.pvp_rating - db_user.pvp_rating)).limit(50).all()
 
-        db_opponent = random.choice(get_match_list)
+    db_opponent = random.choice(get_match_list)
 
-        user_nft_info = get_soldier_info(db_user.main_soldier)
-        opponent_nft_info = get_soldier_info(db_opponent.main_soldier)
-    return {'user': user_nft_info, 'opponent': opponent_nft_info}
+    user_nft_info = get_soldier_info(db_user.main_soldier)
+    opponent_nft_info = get_soldier_info(db_opponent.main_soldier)
+    return {'user': user_nft_info, 'opponent': opponent_nft_info, "user_info": db_user, "opponent_info": db_opponent}
 
 
 def battle(my_soldier: SoldierModel, enemy_soldier: SoldierModel):
@@ -118,9 +115,9 @@ def battle(my_soldier: SoldierModel, enemy_soldier: SoldierModel):
             'my_soldier': my_soldier, 'enemy_soldier': enemy_soldier}
 
 
-def battle_msg(update, context, battle_, mode: str):
+def battle_msg(update, context, battle_, mode: str, user_info: UserModel, opponent_info: UserModel):
     battle_log = battle_['battle_log']
-    init_attack = '유저' if battle_['init_attack'] == 'user' else '상대편'
+    init_attack = user_info.get_fullname() if battle_['init_attack'] == 'user' else opponent_info.get_fullname()
     win_flag = True if battle_['winner'] == 'user' else False
     my_soldier = battle_['my_soldier']
     enemy_soldier = battle_['enemy_soldier']
@@ -132,8 +129,8 @@ def battle_msg(update, context, battle_, mode: str):
 
     # 전투 개시
     for log in battle_log:
-        turn = "<strong>유저</strong> \t 상대" \
-            if log['turn'] == 'user' else "유저 \t<strong>상대</strong>"
+        turn = f"<strong>{user_info.get_fullname()}</strong> \t {opponent_info.get_fullname()}" \
+            if log['turn'] == 'user' else f"{user_info.get_fullname()} \t<strong>{opponent_info.get_fullname()}</strong>"
         text = f"{turn}\n" \
                f"<b>{log['user_hp']}</b> \t\t\t\t\t <b>{log['opponent_hp']}</b> \n" \
                f"{'크리티컬!' if log['crit'] else ''}\n" \
@@ -168,15 +165,15 @@ def battle_msg(update, context, battle_, mode: str):
         text = '✌<b>승리 하셨습니다!</b>' if win_flag else '😢<b>패배 하였습니다!</b>'
         callback_data = 'pvp_practice_main'
 
-    if init_attack == '유저':
+    if init_attack == user_info.get_fullname():
         text += f"\n\n <b>PVP 결과 </b>\n" \
-                f"(선공)유저: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {class_to_kr(my_soldier.class_)}\n" \
-                f"(후공)상대: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {class_to_kr(enemy_soldier.class_)}\n" \
+                f"(선공){user_info.get_fullname()}: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
+                f"(후공){opponent_info.get_fullname()}: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {enemy_soldier.class_to_kr()}\n" \
                 f"✴ 일기토 : {len(battle_log) - 1} 합"
     else:
         text += f"\n\n <b>PVP 결과 </b>\n" \
-                f"(후공)유저: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {class_to_kr(my_soldier.class_)}\n" \
-                f"(선공)상대: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {class_to_kr(enemy_soldier.class_)}\n" \
+                f"(후공){user_info.get_fullname()}: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
+                f"(선공){opponent_info.get_fullname()}: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {enemy_soldier.class_to_kr()}\n" \
                 f"✴ 일기토 : {len(battle_log) - 1} 합"
 
     context.bot.edit_message_text(text=text, parse_mode='HTML',
@@ -185,13 +182,6 @@ def battle_msg(update, context, battle_, mode: str):
     return
 
 
-def class_to_kr(class_: str):
-    if class_ == 'archer':
-        return '궁병'
-    elif class_ == 'cavalry':
-        return '기병'
-    elif class_ == 'infantry':
-        return '보병'
 
 
 class SynergyData:

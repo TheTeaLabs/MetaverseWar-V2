@@ -5,8 +5,8 @@ import threading
 import telegram
 from fastapi_sqlalchemy import db
 from sqlalchemy.exc import IntegrityError
-from telegram.ext import Updater, CallbackQueryHandler
 from telegram.ext import CommandHandler
+from telegram.ext import Updater, CallbackQueryHandler
 
 # from bot.game_pvp import bot_pvp
 # from bot.game_scenario import bot_scenario
@@ -15,14 +15,12 @@ from bot.markup_list import init_markup, register_markup
 from bot.shop import bot_shop
 from bot.status import bot_status
 from env import BOT_TOKEN
-from models.soldier import SoldierModel
 from models.user import UserModel
 from util.battle_util import match_making, battle, battle_msg
 
 updater = Updater(token=BOT_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 BOT = telegram.Bot(BOT_TOKEN)
-SoldierModel
 
 
 # start 를 눌렀을때 화면 init 과 동일시 해야함
@@ -71,11 +69,14 @@ Contact : @gryptogolo
 
 
 def battle_state(update, context):
-    print(update.message.message_id)
-    print(update.message.chat_id)
-    match = match_making(update.message.from_user.id)
+    with db():
+        db_user = db.session.query(UserModel).filter(UserModel.chat_id == update.message.from_user.id).one_or_none()
+    if not db_user.main_soldier:
+        context.bot.send_message(text=f"{db_user.first_name} {db_user.last_name} should set main soldier first",
+                                 chat_id=update.message.chat_id)
+    match = match_making(update.message.from_user.id, db_user)
     battle_ = battle(match['user'], match['opponent'])
-    battle_msg(update, context, battle_, 'pvp')
+    battle_msg(update, context, battle_, 'pvp', match['user_info'], match['opponent_info'])
     return
 
 

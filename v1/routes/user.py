@@ -14,7 +14,7 @@ class UserCreate(BaseModel):
     base schema
     """
     chat_id: str
-    # wallet_address: str
+    wallet_address: str
     # wallet_type: str = "klip"
 
 

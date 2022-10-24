@@ -51,5 +51,13 @@ class SoldierModel(Base):
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
 
+    def class_to_kr(self):
+        if self.class_ == SoldierClass.Archer.value:
+            return '궁병'
+        elif self.class_ == SoldierClass.Cavalry.value:
+            return '기병'
+        elif self.class_ == SoldierClass.Infantry.value:
+            return '보병'
+
 
 SoldierModel.__table__.create(bind=engine, checkfirst=True)

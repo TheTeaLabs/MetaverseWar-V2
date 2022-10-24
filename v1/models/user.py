@@ -9,7 +9,7 @@ class UserModel(Base):
     first_name = Column(String(255))
     last_name = Column(String(255))
 
-    # wallet_address = Column(String(42), unique=True)
+    wallet_address = Column(String(42), unique=True)
     # wallet_type = Column(String(16))
 
     main_soldier = Column(Integer)
@@ -26,6 +26,9 @@ class UserModel(Base):
     created_at = Column(DateTime, nullable=False, default=func.now())
     joined_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
+
+    def get_fullname(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 UserModel.__table__.create(bind=engine, checkfirst=True)
