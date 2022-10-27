@@ -84,7 +84,7 @@ def bot_status(update, context):
                 text = """
                     <b>병사 목록</b>\n
         PVP 에 참여할 병사를 변경 시 <b>[전투 병사 지정]</b>을 눌러주세요!
-        <b>병사 이름</b>을 누르시면 해당 병사의 이미지를 확인 할 수 있습니다.
+        <b>병사 이름</b>을 누르시면 해당 병사의 스텟을 확인 할 수 있습니다.
         <b>[이전 으로]</b> 돌아가 내 정보를 통해 병사를 스텟을 확인할 수 있습니다.
                     """
                 context.bot.edit_message_text(text=text, parse_mode='HTML',
