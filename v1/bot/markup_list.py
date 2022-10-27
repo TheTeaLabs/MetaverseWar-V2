@@ -16,7 +16,8 @@ def init_markup(db_user: UserModel):
             [InlineKeyboardButton('내 정보', callback_data="status_main")],
             [InlineKeyboardButton('상점', callback_data="shop_main")],
             [InlineKeyboardButton('랭킹', callback_data="ranking_1")],
-            [InlineKeyboardButton('Klay 지갑 연동', url=f"https://login.metaversewar.app/?chat_id={db_user.chat_id}")]
+            [InlineKeyboardButton('Klay 지갑 연동',
+                                  url=f"https://login.metaversewar.app/?chat_id={db_user.chat_id}")]
         ])
     else:
         markup = InlineKeyboardMarkup([
@@ -29,7 +30,7 @@ def init_markup(db_user: UserModel):
 
 status_main = InlineKeyboardMarkup([
     [InlineKeyboardButton('보유 병사', callback_data="status_soldier_main"),
-     InlineKeyboardButton('보유 장비(준비 중)', callback_data="status_equipment_main")],
+     InlineKeyboardButton('보유 장비', callback_data="status_equipment_main")],
     [InlineKeyboardButton('전투 병사 해제', callback_data="status_quit_soldier_order")],
     [InlineKeyboardButton('이전 으로', callback_data="init")]
 ])
@@ -63,14 +64,15 @@ status_to_main = InlineKeyboardMarkup([
 
 
 def status_soldier_select_order(soldier_idx: int):
-    button_list = [[InlineKeyboardButton("1번째 병사", callback_data=f'status_select_soldier_set_{soldier_idx}_1')
-                    ],
-                   # ,
-                   # InlineKeyboardButton("2번째 병사",
-                   #                      callback_data=f'status_select_soldier_set_{soldier_idx}_2'),
-                   # InlineKeyboardButton("3번째 병사",
-                   #                      callback_data=f'status_select_soldier_set_{soldier_idx}_3')],
-                   [InlineKeyboardButton('이전 으로', callback_data="status_main")]]
+    button_list = [
+        [InlineKeyboardButton("1번째 병사", callback_data=f'status_select_soldier_set_{soldier_idx}_1')
+         ],
+        # ,
+        # InlineKeyboardButton("2번째 병사",
+        #                      callback_data=f'status_select_soldier_set_{soldier_idx}_2'),
+        # InlineKeyboardButton("3번째 병사",
+        #                      callback_data=f'status_select_soldier_set_{soldier_idx}_3')],
+        [InlineKeyboardButton('이전 으로', callback_data="status_main")]]
     status_soldier = InlineKeyboardMarkup(
         button_list
     )
@@ -95,7 +97,8 @@ def status_soldier_quit_order():
 def status_equipment(soldier_id: int):
     with db():
         button_list = []
-        db_soldier = db.session.query(SoldierModel).filter(SoldierModel.idx == soldier_id).one_or_none()
+        db_soldier = db.session.query(SoldierModel).filter(
+            SoldierModel.idx == soldier_id).one_or_none()
         soldier_equip_info = db_soldier.get_equipment()
         for equip_type in (list(soldier_equip_info.keys())):
             if not soldier_equip_info[equip_type]:
@@ -121,18 +124,21 @@ def status_equipment(soldier_id: int):
 def equipment_list(db_user: UserModel, soldier_id: int, equip_type: str):
     with db():
         button_list = []
-        db_soldier = db.session.query(SoldierModel).filter(SoldierModel.idx == soldier_id).one_or_none()
+        db_soldier = db.session.query(SoldierModel).filter(
+            SoldierModel.idx == soldier_id).one_or_none()
         equip_list = db.session.query(EquipmentModel).filter(
             (EquipmentModel.chat_id == db_user.chat_id) & (EquipmentModel.type == equip_type)).all()
         for equip in equip_list:
             if db_soldier.class_to_kr() == equip.class_to_kr():
                 button_list.append(
-                    [InlineKeyboardButton(equip.name, callback_data=f"status_equipment_detail_{equip.idx}"),
+                    [InlineKeyboardButton(equip.name,
+                                          callback_data=f"status_equipment_detail_{equip.idx}"),
                      InlineKeyboardButton("set",
                                           callback_data=f"status_equipment_set_{equip_type}_{equip.idx}_{soldier_id}")])
             else:
                 button_list.append(
-                    [InlineKeyboardButton(equip.name, callback_data=f"status_equipment_detail_{equip.idx}")])
+                    [InlineKeyboardButton(equip.name,
+                                          callback_data=f"status_equipment_detail_{equip.idx}")])
         button_list.append([InlineKeyboardButton('이전 으로', callback_data="status_main")])
         status_equip = InlineKeyboardMarkup(button_list)
         return status_equip
@@ -143,3 +149,28 @@ shop_main = InlineKeyboardMarkup([
     [InlineKeyboardButton('장비 구매(준비중)', callback_data="shop_equipment")],
     [InlineKeyboardButton('이전 으로', callback_data="init")]
 ])
+
+
+# ranking
+def ranking_markup(page: int, limit: int, max_page: int, ranking: list[UserModel], chat_id: str):
+    match_markup = []
+    rank = limit * (page - 1)
+    for i in ranking:
+        rank += 1
+        if i.chat_id == chat_id:
+            match_markup.append([InlineKeyboardButton(
+                f'(플레이어) {rank}위 rating:{i.pvp_rating}, {i.wallet_address}',
+                callback_data="asd")])
+        else:
+            match_markup.append([InlineKeyboardButton(
+                f'{rank}위 rating:{i.pvp_rating}, {i.wallet_address}',
+                callback_data="asd")])
+    page_select = []
+    if page != 1:
+        page_select.append(InlineKeyboardButton('이전 순위', callback_data=f"ranking_{page - 1}"))
+    if max_page != page:
+        page_select.append(InlineKeyboardButton('다음 순위', callback_data=f"ranking_{page + 1}"))
+    match_markup.append(page_select)
+    match_markup.append([InlineKeyboardButton('이전으로', callback_data="init")])
+    markup = InlineKeyboardMarkup(match_markup)
+    return markup

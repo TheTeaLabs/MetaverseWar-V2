@@ -1,6 +1,7 @@
 # cmd_handler_bot.py
 import datetime
 import threading
+from typing import List
 
 import telegram
 from fastapi_sqlalchemy import db
@@ -12,6 +13,7 @@ from telegram.ext import Updater, CallbackQueryHandler
 # from bot.game_scenario import bot_scenario
 from bot.markup_list import init_markup, register_markup
 # from bot.ranking import bot_ranking
+from bot.ranking import bot_ranking
 from bot.shop import bot_shop
 from bot.status import bot_status, soldier_status_text
 from env import BOT_TOKEN
@@ -104,13 +106,41 @@ def my_info_start(update, context):
     return
 
 
+def show_ranking(update, context):
+    with db():
+        ranking_list: List[UserModel] = db.session.query(UserModel).order_by(
+            UserModel.pvp_rating.desc()).limit(
+            10).all()
+        text = "<strong>랭킹</strong>\n"
+        rank = 1
+        for user in ranking_list:
+            if rank <= 3:
+                if rank == 1:
+                    text += '🥇'
+                elif rank == 2:
+                    text += '🥈'
+                else:
+                    text += '🥉'
+                text += f"<strong>{str(rank)} 위 : {user.get_fullname()} 레이팅: {user.pvp_rating}</strong>\n"
+            else:
+                text += '🏅'
+                text += f"{str(rank)} 위 : {user.get_fullname()} 레이팅: {user.pvp_rating}\n"
+            rank += 1
+        context.bot.send_message(
+            chat_id=update.message.chat_id, parse_mode='HTML'
+            , text=text)
+    return
+
+
 start_handler = CommandHandler('start', init_state)
 battle_handler = CommandHandler(['battle', 'pvp'], battle_state)
 info_handler = CommandHandler(['info'], my_info_start)
+ranking_handler = CommandHandler(['ranking', 'rank'], show_ranking)
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(battle_handler)
 dispatcher.add_handler(info_handler)
+dispatcher.add_handler(ranking_handler)
 
 
 def callback_get(update, context):
@@ -148,8 +178,8 @@ def callback_get(update, context):
         bot_shop(update, context)
     # elif str(update.callback_query.data).startswith("scenario"):
     #     bot_scenario(update, context)
-    # elif str(update.callback_query.data).startswith("ranking"):
-    #     bot_ranking(update, context)
+    elif str(update.callback_query.data).startswith("ranking"):
+        bot_ranking(update, context)
 
 
 dispatcher.add_handler(CallbackQueryHandler(callback_get))
