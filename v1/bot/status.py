@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 
 from bot.markup_list import status_main, status_soldier_list, \
     status_soldier_select_order, status_soldier_quit_order, status_equipment, equipment_list, \
-    status_to_main
+    status_to_main, status_to_equip_main
 from models.equipment import EquipmentModel
 from models.soldier import SoldierModel
 from models.user import UserModel
@@ -84,7 +84,7 @@ def bot_status(update, context):
                 text = """
                     <b>병사 목록</b>\n
         PVP 에 참여할 병사를 변경 시 <b>[전투 병사 지정]</b>을 눌러주세요!
-        <b>TOKEN ID(숫자)</b>를 누르시면 해당 병사의 이미지를 확인 할 수 있습니다.
+        <b>병사 이름</b>을 누르시면 해당 병사의 이미지를 확인 할 수 있습니다.
         <b>[이전 으로]</b> 돌아가 내 정보를 통해 병사를 스텟을 확인할 수 있습니다.
                     """
                 context.bot.edit_message_text(text=text, parse_mode='HTML',
@@ -197,7 +197,7 @@ def bot_status(update, context):
                 context.bot.edit_message_text(text="장비를 변경하였습니다.", parse_mode='HTML',
                                               chat_id=update.callback_query.message.chat_id,
                                               message_id=update.callback_query.message.message_id,
-                                              reply_markup=status_to_main)
+                                              reply_markup=status_to_equip_main)
             elif callback_info[2] == "set":
                 equip_type = callback_info[3]
                 equip_id = callback_info[4]
@@ -222,7 +222,7 @@ def bot_status(update, context):
                 context.bot.edit_message_text(text="장비를 변경하였습니다.", parse_mode='HTML',
                                               chat_id=update.callback_query.message.chat_id,
                                               message_id=update.callback_query.message.message_id,
-                                              reply_markup=status_to_main)
+                                              reply_markup=status_to_equip_main)
         elif purpose == 'quit':
             select_type = callback_info[2]
             select_purpose = callback_info[3]

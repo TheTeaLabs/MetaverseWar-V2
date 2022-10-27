@@ -46,4 +46,3 @@ def change_soldier_equipment(token_id: int, part_type: str, part_id: Optional[st
 
 
 # print(change_soldier_equipment(897, "arm", "3"))
-print(get_weapon_nft(1))

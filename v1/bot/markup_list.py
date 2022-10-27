@@ -62,6 +62,10 @@ status_to_main = InlineKeyboardMarkup([
     [InlineKeyboardButton('이전 으로', callback_data="status_main")]]
 )
 
+status_to_equip_main = InlineKeyboardMarkup([
+    [InlineKeyboardButton('이전 으로', callback_data="status_equipment_main")]]
+)
+
 
 def status_soldier_select_order(soldier_idx: int):
     button_list = [

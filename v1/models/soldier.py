@@ -3,6 +3,7 @@ import enum
 from fastapi_sqlalchemy import db
 from sqlalchemy import Column, Integer, String, ForeignKey, func, Enum, DateTime, Boolean
 
+from enum_data import SoldierClass
 from models import Base, engine
 from models.equipment import EquipmentModel
 from models.user import UserModel
@@ -19,12 +20,6 @@ class SoldierRarity(enum.Enum):
     General = "General"
     Hero = "Hero"
     Myth = "Myth"
-
-
-class SoldierClass(enum.Enum):
-    Archer = "Archer"
-    Cavalry = "Cavalry"
-    Infantry = "Infantry"
 
 
 class SoldierModel(Base):
@@ -89,7 +84,7 @@ class SoldierModel(Base):
             for equip in equip_list:
                 if equip:
                     self.stat_atk += equip.stat_atk
-                    self.stat_def += equip.stat_atk
+                    self.stat_def += equip.stat_def
                 else:
                     continue
         return self

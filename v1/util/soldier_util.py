@@ -2,6 +2,7 @@ import random
 
 from fastapi_sqlalchemy import db
 
+from models.equipment import EquipmentType, EquipmentModel
 from models.soldier import SoldierModel, SoldierNation, SoldierRarity, SoldierClass
 
 
@@ -28,3 +29,21 @@ def create_soldier(update):
         db.session.commit()
         db.session.refresh(soldier)
     return soldier
+
+
+def init_equipment(update, soldier: SoldierModel = None):
+    with db():
+        class_ = soldier.class_
+        for equip_type in list(EquipmentType):
+            equip_type: EquipmentType
+            db_equip = EquipmentModel(chat_id=update.callback_query.message.chat_id,
+                                      name=f"Poor {equip_type.value}",
+                                      type=equip_type.value,
+                                      class_=class_,
+                                      star=1,
+                                      stat_atk=1 if equip_type == EquipmentType.Weapon else 0,
+                                      stat_def=1 if equip_type != EquipmentType.Weapon else 0)
+            db.session.add(db_equip)
+            db.session.flush()
+        db.session.commit()
+        return

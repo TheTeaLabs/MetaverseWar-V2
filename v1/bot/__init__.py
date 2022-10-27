@@ -19,7 +19,7 @@ from bot.status import bot_status, soldier_status_text
 from env import BOT_TOKEN
 from models.user import UserModel
 from util.battle_util import match_making, battle, battle_msg
-from util.soldier_util import create_soldier
+from util.soldier_util import create_soldier, init_equipment, get_soldier_info
 
 updater = Updater(token=BOT_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
@@ -90,7 +90,7 @@ def battle_state(update, context):
     return
 
 
-def my_info_start(update, context):
+def my_info_state(update, context):
     with db():
         db_user = db.session.query(UserModel).filter(
             UserModel.chat_id == update.message.from_user.id).one_or_none()
@@ -106,7 +106,7 @@ def my_info_start(update, context):
     return
 
 
-def show_ranking(update, context):
+def show_ranking_state(update, context):
     with db():
         ranking_list: List[UserModel] = db.session.query(UserModel).order_by(
             UserModel.pvp_rating.desc()).limit(
@@ -132,15 +132,25 @@ def show_ranking(update, context):
     return
 
 
+def test_state(update, context):
+    with db():
+        db_user = db.session.query(UserModel).filter(
+            UserModel.chat_id == update.message.from_user.id).one_or_none()
+        init_equipment(update, get_soldier_info(db_user.main_soldier))
+    return
+
+
 start_handler = CommandHandler('start', init_state)
 battle_handler = CommandHandler(['battle', 'pvp'], battle_state)
-info_handler = CommandHandler(['info'], my_info_start)
-ranking_handler = CommandHandler(['ranking', 'rank'], show_ranking)
+info_handler = CommandHandler(['info'], my_info_state)
+ranking_handler = CommandHandler(['ranking', 'rank'], show_ranking_state)
+test_handler = CommandHandler('test', test_state)
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(battle_handler)
 dispatcher.add_handler(info_handler)
 dispatcher.add_handler(ranking_handler)
+dispatcher.add_handler(test_handler)
 
 
 def callback_get(update, context):
@@ -168,7 +178,9 @@ def callback_get(update, context):
             except IntegrityError as error:
                 raise error
             db.session.refresh(user)
-            create_soldier(update)
+            init_solder = create_soldier(update)
+            init_equipment(update, init_solder)
+
             BOT.sendMessage(chat_id=update.callback_query.message.chat_id,
                             text="계정이 생성되었습니다. /start 로 게임을 시작해주세요!")
 
