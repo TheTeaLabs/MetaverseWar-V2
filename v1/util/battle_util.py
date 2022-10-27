@@ -19,7 +19,8 @@ def match_making(chat_id: str, db_user: UserModel):
 
     user_nft_info = get_soldier_info(db_user.main_soldier)
     opponent_nft_info = get_soldier_info(db_opponent.main_soldier)
-    return {'user': user_nft_info, 'opponent': opponent_nft_info, "user_info": db_user, "opponent_info": db_opponent}
+    return {'user': user_nft_info, 'opponent': opponent_nft_info, "user_info": db_user,
+            "opponent_info": db_opponent}
 
 
 def battle(my_soldier: SoldierModel, enemy_soldier: SoldierModel):
@@ -117,36 +118,37 @@ def battle(my_soldier: SoldierModel, enemy_soldier: SoldierModel):
 
 def battle_msg(update, context, battle_, mode: str, user_info: UserModel, opponent_info: UserModel):
     battle_log = battle_['battle_log']
-    init_attack = user_info.get_fullname() if battle_['init_attack'] == 'user' else opponent_info.get_fullname()
+    init_attack = user_info.get_fullname() if battle_[
+                                                  'init_attack'] == 'user' else opponent_info.get_fullname()
     win_flag = True if battle_['winner'] == 'user' else False
     my_soldier = battle_['my_soldier']
     enemy_soldier = battle_['enemy_soldier']
     # 선공 통보
-    text = f'능력치를 감안하여 {init_attack} 부터 공격을 시작합니다.'
-    init_message = context.bot.send_message(text=text,
-                                            chat_id=update.message.chat_id)
-    time.sleep(3)
+    # text = f'능력치를 감안하여 {init_attack} 부터 공격을 시작합니다.'
+    # init_message = context.bot.send_message(text=text,
+    #                                         chat_id=update.message.chat_id)
+    # time.sleep(3)
 
     # 전투 개시
-    for log in battle_log:
-        turn = f"<strong>{user_info.get_fullname()}</strong> \t {opponent_info.get_fullname()}" \
-            if log[
-                   'turn'] == 'user' else f"{user_info.get_fullname()} \t<strong>{opponent_info.get_fullname()}</strong>"
-        text = f"{turn}\n" \
-               f"<b>{log['user_hp']}</b> \t\t\t\t\t <b>{log['opponent_hp']}</b> \n" \
-               f"{'크리티컬!' if log['crit'] else ''}\n" \
-               f"{log['log']}"
-        context.bot.edit_message_text(text=text, parse_mode='HTML',
-                                      chat_id=init_message.chat.id,
-                                      message_id=init_message.message_id)
-        time.sleep(3)
+    # for log in battle_log:
+    #     turn = f"<strong>{user_info.get_fullname()}</strong> \t {opponent_info.get_fullname()}" \
+    #         if log[
+    #                'turn'] == 'user' else f"{user_info.get_fullname()} \t<strong>{opponent_info.get_fullname()}</strong>"
+    #     text = f"{turn}\n" \
+    #            f"<b>{log['user_hp']}</b> \t\t\t\t\t <b>{log['opponent_hp']}</b> \n" \
+    #            f"{'크리티컬!' if log['crit'] else ''}\n" \
+    #            f"{log['log']}"
+    #     context.bot.edit_message_text(text=text, parse_mode='HTML',
+    #                                   chat_id=init_message.chat.id,
+    #                                   message_id=init_message.message_id)
+    #     time.sleep(3)
     # 전투 끝
     if mode == 'pvp':
-        text = '✌<b>승리 하셨습니다!</b> 레이팅 +10' if win_flag else '😢<b>패배 하였습니다!</b> 레이팅 -10'
         callback_data = 'pvp_main'
         with db():
             db_user = db.session.query(UserModel).filter(
                 UserModel.chat_id == update.message.from_user.id).one_or_none()
+
             if win_flag:
                 db_user.pvp_win_count += 1
                 db_user.pvp_rating += 10
@@ -158,6 +160,8 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
             db_user.pvp_win_rate = round(
                 ((db_user.pvp_win_count / (db_user.pvp_win_count + db_user.pvp_lose_count)) * 100),
                 2)
+            text = f"✌<b>승리 하셨습니다!</b> 레이팅 +10\n현재 레이팅 : {db_user.pvp_rating}" \
+                if win_flag else f"😢<b>패배 하였습니다!</b> 레이팅 -10\n현재 레이팅 : {db_user.pvp_rating}"
             if db_user.win_straight >= 2:
                 text += f'\n 🔥 {db_user.win_straight} 연승 중🔥 '
             db.session.commit()
@@ -168,18 +172,17 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
 
     if init_attack == user_info.get_fullname():
         text += f"\n\n <b>PVP 결과 </b>\n" \
-                f"(선공){user_info.get_fullname()}: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
+                f"(선공)<strong>{user_info.get_fullname()}</strong>: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
                 f"(후공){opponent_info.get_fullname()}: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {enemy_soldier.class_to_kr()}\n" \
                 f"✴ 일기토 : {len(battle_log) - 1} 합"
     else:
         text += f"\n\n <b>PVP 결과 </b>\n" \
-                f"(후공){user_info.get_fullname()}: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
+                f"(후공)<strong>{user_info.get_fullname()}</strong>: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
                 f"(선공){opponent_info.get_fullname()}: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {enemy_soldier.class_to_kr()}\n" \
                 f"✴ 일기토 : {len(battle_log) - 1} 합"
 
-    context.bot.edit_message_text(text=text, parse_mode='HTML',
-                                  chat_id=init_message.chat.id,
-                                  message_id=init_message.message_id)
+    context.bot.send_message(text=text, parse_mode='HTML',
+                             chat_id=update.message.chat.id)
     return
 
 

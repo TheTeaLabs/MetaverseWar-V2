@@ -13,7 +13,7 @@ from telegram.ext import Updater, CallbackQueryHandler
 from bot.markup_list import init_markup, register_markup
 # from bot.ranking import bot_ranking
 from bot.shop import bot_shop
-from bot.status import bot_status
+from bot.status import bot_status, soldier_status_text
 from env import BOT_TOKEN
 from models.user import UserModel
 from util.battle_util import match_making, battle, battle_msg
@@ -70,10 +70,17 @@ Contact : @gryptogolo
 
 def battle_state(update, context):
     with db():
-        db_user = db.session.query(UserModel).filter(UserModel.chat_id == update.message.from_user.id).one_or_none()
+        db_user = db.session.query(UserModel).filter(
+            UserModel.chat_id == update.message.from_user.id).one_or_none()
+    if not db_user:
+        context.bot.send_message(
+            text=f"회원 가입을 먼저 진행해주세요. \n@NFT_gamebot",
+            chat_id=update.message.chat_id)
+        return
     if not db_user.main_soldier:
-        context.bot.send_message(text=f"{db_user.first_name} {db_user.last_name} should set main soldier first",
-                                 chat_id=update.message.chat_id)
+        context.bot.send_message(
+            text=f"{db_user.first_name} {db_user.last_name} , 전투 병사를 지정해야 합니다.",
+            chat_id=update.message.chat_id)
         return
     match = match_making(update.message.from_user.id, db_user)
     battle_ = battle(match['user'], match['opponent'])
@@ -81,11 +88,29 @@ def battle_state(update, context):
     return
 
 
+def my_info_start(update, context):
+    with db():
+        db_user = db.session.query(UserModel).filter(
+            UserModel.chat_id == update.message.from_user.id).one_or_none()
+        if not db_user:
+            context.bot.send_message(
+                text=f"회원 가입을 먼저 진행해주세요. \n@NFT_gamebot",
+                chat_id=update.message.chat_id)
+            return
+
+        context.bot.send_message(
+            chat_id=update.message.chat_id, parse_mode='HTML'
+            , text=soldier_status_text(db_user))
+    return
+
+
 start_handler = CommandHandler('start', init_state)
-battle_handler = CommandHandler('battle', battle_state)
+battle_handler = CommandHandler(['battle', 'pvp'], battle_state)
+info_handler = CommandHandler(['info'], my_info_start)
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(battle_handler)
+dispatcher.add_handler(info_handler)
 
 
 def callback_get(update, context):

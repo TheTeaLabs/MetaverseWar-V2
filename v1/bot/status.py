@@ -2,7 +2,8 @@ from fastapi_sqlalchemy import db
 from sqlalchemy.exc import IntegrityError
 
 from bot.markup_list import status_main, status_soldier_list, \
-    status_soldier_select_order, status_soldier_quit_order, status_equipment, equipment_list, status_to_main
+    status_soldier_select_order, status_soldier_quit_order, status_equipment, equipment_list, \
+    status_to_main
 from models.equipment import EquipmentModel
 from models.soldier import SoldierModel
 from models.user import UserModel
@@ -21,10 +22,12 @@ def bot_status(update, context):
                 db_soldier = db.session.query(SoldierModel).filter(
                     SoldierModel.idx == db_user.main_soldier).one_or_none()
 
-                if db_soldier.from_nft and not check_user_own_soldier_nft(db_user.wallet_address, db_soldier.token_id):
+                if db_soldier.from_nft and not check_user_own_soldier_nft(db_user.wallet_address,
+                                                                          db_soldier.token_id):
                     # 메인병사 nft가 없는 경우
                     db.session.query(SoldierModel).filter(
-                        (SoldierModel.idx == db_user.main_soldier) & (SoldierModel.from_nft.is_(True))).delete()
+                        (SoldierModel.idx == db_user.main_soldier) & (
+                            SoldierModel.from_nft.is_(True))).delete()
                     db_user.main_soldier = None
                     db.session.commit()
                     db.session.refresh(db_user)
@@ -52,7 +55,8 @@ def bot_status(update, context):
                         soldier = SoldierModel(from_nft=True,
                                                chat_id=db_user.chat_id,
                                                token_id=nft['token_id'],
-                                               name=nft['basic']['title'] + " " + str(nft['token_id']),
+                                               name=nft['basic']['title'] + " " + str(
+                                                   nft['token_id']),
                                                nation=nft['basic']['nation'],
                                                rarity=nft['basic']['rarity'],
                                                class_=nft['basic']['class'],
@@ -158,10 +162,13 @@ def bot_status(update, context):
                 context.bot.edit_message_text(text=text, parse_mode='HTML',
                                               chat_id=update.callback_query.message.chat_id,
                                               message_id=update.callback_query.message.message_id,
-                                              reply_markup=equipment_list(db_user, db_user.main_soldier, equip_type))
+                                              reply_markup=equipment_list(db_user,
+                                                                          db_user.main_soldier,
+                                                                          equip_type))
             elif callback_info[2] == "detail":
                 equip_id = callback_info[3]
-                db_equip = db.session.query(EquipmentModel).filter(EquipmentModel.idx == equip_id).one_or_none()
+                db_equip = db.session.query(EquipmentModel).filter(
+                    EquipmentModel.idx == equip_id).one_or_none()
                 text = equip_text(db_equip)
                 context.bot.edit_message_text(text=text, parse_mode='HTML',
                                               chat_id=update.callback_query.message.chat_id,
@@ -246,9 +253,16 @@ def soldier_status_text(db_user: UserModel):
     soldier1_info = get_soldier_info(db_user.main_soldier)
     soldier2_info = get_soldier_info(db_user.main_soldier2)
     soldier3_info = get_soldier_info(db_user.main_soldier3)
-    text = f"1 번째 전투 병사: {db_user.main_soldier}\n" \
-           f"2 번째 전투 병사: {db_user.main_soldier2}\n" \
-           f"3 번째 전투 병사: {db_user.main_soldier3}\n" \
+    # text = f"1 번째 전투 병사: {db_user.main_soldier}\n" \
+    #        f"2 번째 전투 병사: {db_user.main_soldier2}\n" \
+    #        f"3 번째 전투 병사: {db_user.main_soldier3}\n" \
+    #        f"레이팅 : {db_user.pvp_rating}\n" \
+    #        f"PVP 전적: {db_user.pvp_win_count} 승 / {db_user.pvp_lose_count} 패 , 승률 : {db_user.pvp_win_rate}\n" \
+    #        f"시나리오 진행도: {db_user.scenario_step}\n" \
+    #        f"가입 일자 : {db_user.created_at}\n\n"
+
+    text = f"유저명: {db_user.get_fullname()}\n" \
+           f"전투 병사: {db_user.main_soldier}\n" \
            f"레이팅 : {db_user.pvp_rating}\n" \
            f"PVP 전적: {db_user.pvp_win_count} 승 / {db_user.pvp_lose_count} 패 , 승률 : {db_user.pvp_win_rate}\n" \
            f"시나리오 진행도: {db_user.scenario_step}\n" \

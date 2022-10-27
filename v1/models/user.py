@@ -28,7 +28,8 @@ class UserModel(Base):
     updated_at = Column(DateTime, onupdate=func.now())
 
     def get_fullname(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name if self.first_name else ''} " \
+               f"{self.last_name if self.last_name else ''}"
 
 
 UserModel.__table__.create(bind=engine, checkfirst=True)

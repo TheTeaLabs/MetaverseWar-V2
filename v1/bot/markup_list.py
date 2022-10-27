@@ -21,7 +21,7 @@ def init_markup(db_user: UserModel):
     else:
         markup = InlineKeyboardMarkup([
             [InlineKeyboardButton('내 정보', callback_data="status_main")],
-            [InlineKeyboardButton('상점', callback_data="shop_main")],
+            [InlineKeyboardButton('상점(준비 중)', callback_data="shop_mainNotYet")],
             [InlineKeyboardButton('랭킹', callback_data="ranking_1")]
         ])
     return markup

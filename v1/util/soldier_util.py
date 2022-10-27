@@ -20,10 +20,10 @@ def create_soldier(update):
         rarity = SoldierRarity.Common.value
         class_ = random.choice(list(SoldierClass)).value
         soldier = SoldierModel(chat_id=update.callback_query.message.chat_id,
-                               name=nation + class_ + str(random.randint(10000, 99999)),
+                               name=nation + class_ + " " + str(random.randint(10000, 99999)),
                                nation=nation,
-                               rarity=rarity, class_=class_, star=1, stat_atk=random.randint(1, 5),
-                               stat_def=random.randint(2, 11))
+                               rarity=rarity, class_=class_, star=1, stat_atk=random.randint(1, 3),
+                               stat_def=random.randint(2, 5))
         db.session.add(soldier)
         db.session.commit()
         db.session.refresh(soldier)
