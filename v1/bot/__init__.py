@@ -29,11 +29,11 @@ BOT = telegram.Bot(BOT_TOKEN)
 # start 를 눌렀을때 화면 init 과 동일시 해야함
 def init_state(update, context):
     text = """
-    <b>&lt;최초 &gt;</b> 텔레그램 봇 기반의 NFT 게임 메타버스워!
+    <b>&lt;World First &gt;</b> Telegram Bot Based NFT game, MetaverseWar!
 
-공지방 : https://t.me/Metaversewarofficial
+Notice(KR) : https://t.me/Metaversewarofficial
 
-소통방 : https://t.me/metaverse_warGroupchat
+Community(KR) : https://t.me/metaverse_warGroupchat
 
 Contact : @gryptogolo
 
@@ -61,7 +61,7 @@ Contact : @gryptogolo
                 db.session.refresh(db_user)
                 text = 'Welcome to MetaverseWar'
                 if not db_user.main_soldier:
-                    text += '\n\n<b>메인 전투 병사를 지정 하셔야 합니다.</b>'
+                    text += '\n\n<b>Player should set battle soldier.</b>'
 
                 context.bot.send_message(
                     chat_id=update.message.chat_id, parse_mode='HTML'
@@ -77,13 +77,13 @@ def battle_state(update, context):
 
         if not db_user:
             context.bot.send_message(
-                text=f"회원 가입을 먼저 진행해주세요. \n@NFT_gamebot",
+                text=f"Register First. \n@NFT_gamebot",
                 chat_id=update.message.chat_id)
             return
 
         if not db_user.main_soldier:
             context.bot.send_message(
-                text=f"{db_user.first_name} {db_user.last_name} , 전투 병사를 지정해야 합니다.",
+                text=f"{db_user.first_name} {db_user.last_name} , should set battle soldier.",
                 chat_id=update.message.chat_id)
             return
         if db_user.last_rank_battle.date() < datetime.date.today():
@@ -91,7 +91,7 @@ def battle_state(update, context):
         if db_user.last_rank_battle.date() >= datetime.date.today():
             if db_user.rank_battle_count >= 10:
                 context.bot.send_message(
-                    text=f"{db_user.first_name} {db_user.last_name} , 하루 최대 pvp 참여 횟수에 도달하였습니다.",
+                    text=f"{db_user.first_name} {db_user.last_name} , exceed pvp count today.",
                     chat_id=update.message.chat_id)
                 return
             else:
@@ -111,7 +111,7 @@ def my_info_state(update, context):
             UserModel.chat_id == update.message.from_user.id).one_or_none()
         if not db_user:
             context.bot.send_message(
-                text=f"회원 가입을 먼저 진행해주세요. \n@NFT_gamebot",
+                text=f"Register First. \n@NFT_gamebot",
                 chat_id=update.message.chat_id)
             return
 
@@ -126,7 +126,7 @@ def show_ranking_state(update, context):
         ranking_list: List[UserModel] = db.session.query(UserModel).order_by(
             UserModel.pvp_rating.desc()).limit(
             10).all()
-        text = "<strong>랭킹</strong>\n"
+        text = "<strong>Ranking</strong>\n"
         rank = 1
         for user in ranking_list:
             if rank <= 3:
@@ -136,10 +136,10 @@ def show_ranking_state(update, context):
                     text += '🥈'
                 else:
                     text += '🥉'
-                text += f"<strong>{str(rank)} 위 : {user.get_fullname()} 레이팅: {user.pvp_rating}</strong>\n"
+                text += f"<strong>{str(rank)} Place : {user.get_fullname()} Rating: {user.pvp_rating}</strong>\n"
             else:
                 text += '🏅'
-                text += f"{str(rank)} 위 : {user.get_fullname()} 레이팅: {user.pvp_rating}\n"
+                text += f"{str(rank)} Place : {user.get_fullname()} Rating: {user.pvp_rating}\n"
             rank += 1
         context.bot.send_message(
             chat_id=update.message.chat_id, parse_mode='HTML'
@@ -177,7 +177,7 @@ def callback_get(update, context):
                 UserModel.chat_id == update.callback_query.message.chat_id).one_or_none()
             text = "Welcome to MetaverseWar"
             if not db_user.main_soldier:
-                text += '\n\n<b>메인 전투 병사를 지정 하셔야 합니다.</b>'
+                text += '\n\n<b>Should set battle soldier.</b>'
             context.bot.edit_message_text(text=text, parse_mode='HTML',
                                           chat_id=update.callback_query.message.chat_id,
                                           message_id=update.callback_query.message.message_id,
@@ -197,7 +197,7 @@ def callback_get(update, context):
             init_equipment(update, init_solder)
 
             BOT.sendMessage(chat_id=update.callback_query.message.chat_id,
-                            text="계정이 생성되었습니다. /start 로 게임을 시작해주세요!")
+                            text="Register Success \"/start\" to start game.")
 
     elif str(update.callback_query.data).startswith("status"):
         bot_status(update, context)

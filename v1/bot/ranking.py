@@ -14,7 +14,7 @@ def bot_ranking(update, context):
         user_count = db.session.query(UserModel).count()
         max_page = (user_count // limit) + 1
 
-        context.bot.edit_message_text(text=f'랭킹 , 페이지:{page}',
+        context.bot.edit_message_text(text=f'Ranking , Page:{page}',
                                       chat_id=update.callback_query.message.chat_id,
                                       message_id=update.callback_query.message.message_id,
                                       reply_markup=ranking_markup(page, limit, max_page, ranking,

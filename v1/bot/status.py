@@ -35,13 +35,10 @@ def bot_status(update, context):
                 text = soldier_status_text(db_user)
 
             else:
-                text = f"1 번째 전투 병사: {db_user.main_soldier}\n" \
-                       f"2 번째 전투 병사: {db_user.main_soldier2}\n" \
-                       f"3 번째 전투 병사: {db_user.main_soldier3}\n" \
-                       f"레이팅 : {db_user.pvp_rating}\n" \
-                       f"PVP 전적: {db_user.pvp_win_count} 승 / {db_user.pvp_lose_count} 패 , 승률 : {db_user.pvp_win_rate}\n" \
-                       f"시나리오 진행도: {db_user.scenario_step}\n" \
-                       f"가입 일자 : {db_user.created_at}\n\n"
+                text = f"Main Soldier: {db_user.main_soldier}\n" \
+                       f"Rating : {db_user.pvp_rating}\n" \
+                       f"PVP Log: {db_user.pvp_win_count} Win / {db_user.pvp_lose_count} Lose , Win Rate : {db_user.pvp_win_rate}\n" \
+                       f"Register Date : {db_user.created_at}\n\n"
             context.bot.edit_message_text(text=text, parse_mode='HTML',
                                           chat_id=update.callback_query.message.chat_id,
                                           message_id=update.callback_query.message.message_id,
@@ -82,11 +79,11 @@ def bot_status(update, context):
                 for soldier in soldier_list:
                     button_list.append([soldier.name, soldier.idx])
                 text = """
-                    <b>병사 목록</b>\n
-        PVP 에 참여할 병사를 변경 시 <b>[전투 병사 지정]</b>을 눌러주세요!
-        <b>병사 이름</b>을 누르시면 해당 병사의 스텟을 확인 할 수 있습니다.
-        <b>[이전 으로]</b> 돌아가 내 정보를 통해 병사를 스텟을 확인할 수 있습니다.
-                    """
+                            <b>Soldier List</b>\n
+                Press <b>[Set Battle Soldier]</b> button to set battle soldier.
+                Press <b>TOKEN ID</b> button to see soldier NFT image.
+                If press <b>[Back]</b> button to go back.
+                            """
                 context.bot.edit_message_text(text=text, parse_mode='HTML',
                                               chat_id=update.callback_query.message.chat_id,
                                               message_id=update.callback_query.message.message_id,
@@ -106,7 +103,7 @@ def bot_status(update, context):
             if select_type == "soldier":
                 if select_purpose == "order":
 
-                    context.bot.edit_message_text(text="병사의 순서를 지정해주세요.", parse_mode='HTML',
+                    context.bot.edit_message_text(text="Set Soldier Order.", parse_mode='HTML',
                                                   chat_id=update.callback_query.message.chat_id,
                                                   message_id=update.callback_query.message.message_id,
                                                   reply_markup=status_soldier_select_order(
@@ -136,13 +133,13 @@ def bot_status(update, context):
         elif purpose == "equipment":
             if callback_info[2] == "main":
                 text = """
-                            <b>보유한 장비 NFT 를 착용 할 수 있습니다.</b>
-            [장비 장착 전]
-            장비 이름 옆 <b>None</b> 을 눌러 보유 장비를 확인합니다.
+                                <b>You can set your equipment nft.</b>
+                [Before equip]
+                Press <b>None</b> button to check equipments list.
 
-            [장비 장착 후]
-            <b>unset = 장착 해제</b>
-            <b>list = 장비 리스트</b> 확인"""
+                [After equip]
+                <b>unset = unset your equipment</b>
+                <b>list = check equipment list</b>"""
                 context.bot.edit_message_text(text=text, parse_mode='HTML',
                                               chat_id=update.callback_query.message.chat_id,
                                               message_id=update.callback_query.message.message_id,
@@ -152,12 +149,11 @@ def bot_status(update, context):
             elif callback_info[2] == "list":
                 equip_type = callback_info[3]
                 text = f"""
-                                <b>보유한 {equip_type} 들 입니다.</b>
+                                <b>Own {equip_type} list.</b>
 
-                name Armor / xx 을 누를 경우 해당 장비를 확인 할 수 있습니다.
-                장비 능력치를 확인할 수 있습니다.
+                Press "name Armor / xx" to check equipment info.
 
-                <b>Set</b> 을 눌러 착용 해주세요!
+                <b>Set</b> to set your equipment!
                                 """
                 context.bot.edit_message_text(text=text, parse_mode='HTML',
                                               chat_id=update.callback_query.message.chat_id,
@@ -219,7 +215,7 @@ def bot_status(update, context):
                 elif equip_type == "Weapon":
                     db_soldier.equipment_weapon = equip_id
                 db.session.commit()
-                context.bot.edit_message_text(text="장비를 변경하였습니다.", parse_mode='HTML',
+                context.bot.edit_message_text(text="Set Equipment Success.", parse_mode='HTML',
                                               chat_id=update.callback_query.message.chat_id,
                                               message_id=update.callback_query.message.message_id,
                                               reply_markup=status_to_equip_main)
@@ -228,7 +224,7 @@ def bot_status(update, context):
             select_purpose = callback_info[3]
             if select_type == "soldier":
                 if select_purpose == "order":
-                    context.bot.edit_message_text(text="해제할 병사를 골라주세요.",
+                    context.bot.edit_message_text(text="Select unset Soldier.",
                                                   chat_id=update.callback_query.message.chat_id,
                                                   message_id=update.callback_query.message.message_id,
                                                   reply_markup=status_soldier_quit_order())
@@ -261,22 +257,21 @@ def soldier_status_text(db_user: UserModel):
     #        f"시나리오 진행도: {db_user.scenario_step}\n" \
     #        f"가입 일자 : {db_user.created_at}\n\n"
 
-    text = f"유저명: {db_user.get_fullname()}\n" \
-           f"전투 병사: {db_user.main_soldier}\n" \
-           f"레이팅 : {db_user.pvp_rating}\n" \
-           f"PVP 전적: {db_user.pvp_win_count} 승 / {db_user.pvp_lose_count} 패 , 승률 : {db_user.pvp_win_rate}\n" \
-           f"시나리오 진행도: {db_user.scenario_step}\n" \
-           f"가입 일자 : {db_user.created_at}\n" \
-           f"<strong>보유 포인트 : {db_user.cash_point}</strong>\n\n"
+    text = f"User name: {db_user.get_fullname()}\n" \
+           f"Main Soldier: {db_user.main_soldier}\n" \
+           f"Rating : {db_user.pvp_rating}\n" \
+           f"PVP Log: {db_user.pvp_win_count} Win / {db_user.pvp_lose_count} Lose , Win Rate : {db_user.pvp_win_rate}\n" \
+           f"Register Date : {db_user.created_at}\n" \
+           f"<strong>Own Point : {db_user.cash_point}</strong>\n\n"
     if soldier1_info:
-        text += f"1번째 전투 병사 정보: \n" \
-                f"병사 이름 : {soldier1_info.name}\n" \
-                f"클래스 : {soldier1_info.class_.value}\n" \
-                f"희귀도 : {soldier1_info.rarity.value}\n" \
-                f"공격력 : {soldier1_info.stat_atk}\n" \
-                f"방어력 : {soldier1_info.stat_def}\n\n"
+        text += f"Main Soldier Info: \n" \
+                f"Name : {soldier1_info.name}\n" \
+                f"Class : {soldier1_info.class_.value}\n" \
+                f"Rarity : {soldier1_info.rarity.value}\n" \
+                f"ATK : {soldier1_info.stat_atk}\n" \
+                f"DEf : {soldier1_info.stat_def}\n\n"
     else:
-        text += f"1번째 전투 병사를 먼저 지정해야 합니다 \n\n"
+        text += f"Should set battle soldier. \n\n"
     if soldier2_info:
         text += f"2번째 전투 병사 정보: \n" \
                 f"병사 이름 : {soldier2_info.name}\n" \
@@ -295,20 +290,20 @@ def soldier_status_text(db_user: UserModel):
 
 
 def soldier_text(soldier: SoldierModel):
-    text = f"전투 병사 정보: \n" \
-           f"병사 이름 : {soldier.name}\n" \
-           f"클래스 : {soldier.class_.value}\n" \
-           f"희귀도 : {soldier.rarity.value}\n" \
-           f"공격력 : {soldier.stat_atk}\n" \
-           f"방어력 : {soldier.stat_def}\n"
+    text = f"Soldier Info: \n" \
+           f"Name : {soldier.name}\n" \
+           f"Class : {soldier.class_.value}\n" \
+           f"Rarity : {soldier.rarity.value}\n" \
+           f"ATK : {soldier.stat_atk}\n" \
+           f"DEF : {soldier.stat_def}\n"
     return text
 
 
 def equip_text(equip: EquipmentModel):
-    text = f"장비 정보 : \n" \
-           f"장비 이름 : {equip.name}\n" \
-           f"클래스 : {equip.class_.value}\n" \
-           f"공격력 : {equip.stat_atk}\n" \
-           f"방어력 : {equip.stat_def}\n" \
-           f"스킬 : {equip.stat_skill}\n"
+    text = f"Equipment Info : \n" \
+           f"Name : {equip.name}\n" \
+           f"Class : {equip.class_.value}\n" \
+           f"ATK : {equip.stat_atk}\n" \
+           f"DEF : {equip.stat_def}\n" \
+           f"Skill : {equip.stat_skill}\n"
     return text

@@ -159,26 +159,26 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
             db_user.pvp_win_rate = round(
                 ((db_user.pvp_win_count / (db_user.pvp_win_count + db_user.pvp_lose_count)) * 100),
                 2)
-            text = f"✌<b>승리 하셨습니다!</b> 포인트 + 100, 레이팅 +10\n현재 레이팅 : {db_user.pvp_rating}" \
-                if win_flag else f"😢<b>패배 하였습니다!</b> 레이팅 -10\n현재 레이팅 : {db_user.pvp_rating}"
+            text = f"✌<b>Win!</b> Point + 100, Rating +10\nCurrent Rating : {db_user.pvp_rating}" \
+                if win_flag else f"😢<b>패배 하였습니다!</b> Rating -10\nCurrent Rating : {db_user.pvp_rating}"
             if db_user.win_straight >= 2:
-                text += f'\n 🔥 {db_user.win_straight} 연승 중🔥 '
+                text += f'\n 🔥 {db_user.win_straight} Win in a row🔥 '
             db.session.commit()
 
     elif mode == 'practice':
-        text = '✌<b>승리 하셨습니다!</b>' if win_flag else '😢<b>패배 하였습니다!</b>'
+        text = '✌<b>Win!</b>' if win_flag else '😢<b>Lose!</b>'
         callback_data = 'pvp_practice_main'
 
     if init_attack == user_info.get_fullname():
-        text += f"\n\n <b>PVP 결과 </b>\n" \
-                f"(선공)<strong>{user_info.get_fullname()}</strong>: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
-                f"(후공){opponent_info.get_fullname()}: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {enemy_soldier.class_to_kr()}\n" \
-                f"✴ 일기토 : {len(battle_log) - 1} 합"
+        text += f"\n\n <b>PVP Result </b>\n" \
+                f"(First Attack)<strong>{user_info.get_fullname()}</strong>: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
+                f"(Later Attack){opponent_info.get_fullname()}: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {enemy_soldier.class_to_kr()}\n" \
+                f"✴ Battle Count : {len(battle_log) - 1} 합"
     else:
         text += f"\n\n <b>PVP 결과 </b>\n" \
-                f"(후공)<strong>{user_info.get_fullname()}</strong>: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
-                f"(선공){opponent_info.get_fullname()}: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {enemy_soldier.class_to_kr()}\n" \
-                f"✴ 일기토 : {len(battle_log) - 1} 합"
+                f"(Later Attack)<strong>{user_info.get_fullname()}</strong>: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
+                f"(First Attack){opponent_info.get_fullname()}: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {enemy_soldier.class_to_kr()}\n" \
+                f"✴ Battle Count : {len(battle_log) - 1} 합"
 
     context.bot.send_message(text=text, parse_mode='HTML',
                              chat_id=update.message.chat.id)
