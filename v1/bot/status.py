@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 
 from bot.markup_list import status_main, status_soldier_list, \
     status_soldier_select_order, status_soldier_quit_order, status_equipment, equipment_list, \
-    status_to_main, status_to_equip_main
+    status_to_main, status_to_equip_main, status_to_equip_type_list
 from models.equipment import EquipmentModel
 from models.soldier import SoldierModel
 from models.user import UserModel
@@ -169,7 +169,8 @@ def bot_status(update, context):
                 context.bot.edit_message_text(text=text, parse_mode='HTML',
                                               chat_id=update.callback_query.message.chat_id,
                                               message_id=update.callback_query.message.message_id,
-                                              reply_markup=status_to_main)
+                                              reply_markup=status_to_equip_type_list(
+                                                  db_equip.type.value))
             elif callback_info[2] == "unset":
                 equip_type = callback_info[3]
                 soldier_id = callback_info[4]

@@ -86,16 +86,22 @@ def battle_state(update, context):
                 text=f"{db_user.first_name} {db_user.last_name} , should set battle soldier.",
                 chat_id=update.message.chat_id)
             return
-        if db_user.last_rank_battle.date() < datetime.date.today():
-            db_user.rank_battle_count = 1
-        if db_user.last_rank_battle.date() >= datetime.date.today():
-            if db_user.rank_battle_count >= 10:
-                context.bot.send_message(
-                    text=f"{db_user.first_name} {db_user.last_name} , exceed pvp count today.",
-                    chat_id=update.message.chat_id)
-                return
-            else:
-                db_user.rank_battle_count += 1
+        if db_user.last_rank_battle:
+            if db_user.last_rank_battle.date() < datetime.date.today():
+                db_user.last_rank_battle = datetime.datetime.now()
+                db_user.rank_battle_count = 1
+            if db_user.last_rank_battle.date() >= datetime.date.today():
+                if db_user.rank_battle_count >= 10:
+                    context.bot.send_message(
+                        text=f"{db_user.first_name} {db_user.last_name} , exceed pvp count today.",
+                        chat_id=update.message.chat_id)
+                    return
+                else:
+                    db_user.last_rank_battle = datetime.datetime.now()
+                    db_user.rank_battle_count += 1
+        else:
+            db_user.last_rank_battle = datetime.datetime.now()
+            db_user.rank_battle_count += 1
         db.session.commit()
         db.session.refresh(db_user)
 
@@ -186,7 +192,9 @@ def callback_get(update, context):
         with db():
             user = UserModel(chat_id=update.callback_query.message.chat_id,
                              first_name=update.callback_query.message.chat.first_name,
-                             last_name=update.callback_query.message.chat.last_name)
+                             last_name=update.callback_query.message.chat.last_name,
+                             cash_point=20000
+                             )
             db.session.add(user)
             try:
                 db.session.commit()

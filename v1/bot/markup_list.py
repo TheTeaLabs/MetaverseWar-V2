@@ -68,9 +68,16 @@ status_to_equip_main = InlineKeyboardMarkup([
 )
 
 
+def status_to_equip_type_list(equip_type: str):
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton('Back', callback_data=f"status_equipment_list_{equip_type}")]]
+    )
+
+
 def status_soldier_select_order(soldier_idx: int):
     button_list = [
-        [InlineKeyboardButton("First Soldier", callback_data=f'status_select_soldier_set_{soldier_idx}_1')
+        [InlineKeyboardButton("First Soldier",
+                              callback_data=f'status_select_soldier_set_{soldier_idx}_1')
          ],
         # ,
         # InlineKeyboardButton("2번째 병사",
@@ -85,14 +92,15 @@ def status_soldier_select_order(soldier_idx: int):
 
 
 def status_soldier_quit_order():
-    button_list = [[InlineKeyboardButton("First Soldier", callback_data=f'status_quit_soldier_unset_1')
-                    ],
-                   # ,
-                   # InlineKeyboardButton("2번째 병사",
-                   #                      callback_data=f'status_quit_soldier_unset_2'),
-                   # InlineKeyboardButton("3번째 병사",
-                   #                      callback_data="status_quit_soldier_unset_3")],
-                   [InlineKeyboardButton('Back', callback_data="status_main")]]
+    button_list = [
+        [InlineKeyboardButton("First Soldier", callback_data=f'status_quit_soldier_unset_1')
+         ],
+        # ,
+        # InlineKeyboardButton("2번째 병사",
+        #                      callback_data=f'status_quit_soldier_unset_2'),
+        # InlineKeyboardButton("3번째 병사",
+        #                      callback_data="status_quit_soldier_unset_3")],
+        [InlineKeyboardButton('Back', callback_data="status_main")]]
     status_soldier = InlineKeyboardMarkup(
         button_list
     )
@@ -151,7 +159,8 @@ def equipment_list(db_user: UserModel, soldier_id: int, equip_type: str):
 
 shop_main = InlineKeyboardMarkup([
     [InlineKeyboardButton(f"Buy Soldier : {SOLDIER_PRICE}pt needed", callback_data="shop_soldier")],
-    [InlineKeyboardButton(f'Buy Equipment : {EQUIPMENT_PRICE}pt needed', callback_data="shop_equipment")],
+    [InlineKeyboardButton(f'Buy Equipment : {EQUIPMENT_PRICE}pt needed',
+                          callback_data="shop_equipment")],
     [InlineKeyboardButton('Back', callback_data="init")]
 ])
 
@@ -172,7 +181,8 @@ def ranking_markup(page: int, limit: int, max_page: int, ranking: list[UserModel
                 callback_data="asd")])
     page_select = []
     if page != 1:
-        page_select.append(InlineKeyboardButton('Previous Page', callback_data=f"ranking_{page - 1}"))
+        page_select.append(
+            InlineKeyboardButton('Previous Page', callback_data=f"ranking_{page - 1}"))
     if max_page != page:
         page_select.append(InlineKeyboardButton('Next Page', callback_data=f"ranking_{page + 1}"))
     match_markup.append(page_select)
