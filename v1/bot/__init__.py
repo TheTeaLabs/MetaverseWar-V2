@@ -74,20 +74,35 @@ def battle_state(update, context):
     with db():
         db_user = db.session.query(UserModel).filter(
             UserModel.chat_id == update.message.from_user.id).one_or_none()
-    if not db_user:
-        context.bot.send_message(
-            text=f"회원 가입을 먼저 진행해주세요. \n@NFT_gamebot",
-            chat_id=update.message.chat_id)
+
+        if not db_user:
+            context.bot.send_message(
+                text=f"회원 가입을 먼저 진행해주세요. \n@NFT_gamebot",
+                chat_id=update.message.chat_id)
+            return
+
+        if not db_user.main_soldier:
+            context.bot.send_message(
+                text=f"{db_user.first_name} {db_user.last_name} , 전투 병사를 지정해야 합니다.",
+                chat_id=update.message.chat_id)
+            return
+        if db_user.last_rank_battle.date() < datetime.date.today():
+            db_user.rank_battle_count = 1
+        if db_user.last_rank_battle.date() >= datetime.date.today():
+            if db_user.rank_battle_count >= 10:
+                context.bot.send_message(
+                    text=f"{db_user.first_name} {db_user.last_name} , 하루 최대 pvp 참여 횟수에 도달하였습니다.",
+                    chat_id=update.message.chat_id)
+                return
+            else:
+                db_user.rank_battle_count += 1
+        db.session.commit()
+        db.session.refresh(db_user)
+
+        match = match_making(update.message.from_user.id, db_user)
+        battle_ = battle(match['user'], match['opponent'])
+        battle_msg(update, context, battle_, 'pvp', match['user_info'], match['opponent_info'])
         return
-    if not db_user.main_soldier:
-        context.bot.send_message(
-            text=f"{db_user.first_name} {db_user.last_name} , 전투 병사를 지정해야 합니다.",
-            chat_id=update.message.chat_id)
-        return
-    match = match_making(update.message.from_user.id, db_user)
-    battle_ = battle(match['user'], match['opponent'])
-    battle_msg(update, context, battle_, 'pvp', match['user_info'], match['opponent_info'])
-    return
 
 
 def my_info_state(update, context):

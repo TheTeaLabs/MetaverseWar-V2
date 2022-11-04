@@ -25,6 +25,10 @@ class UserModel(Base):
 
     cash_point = Column(Integer, default=0)
 
+    # 전투 참여 횟수 카운트
+    rank_battle_count: Column = Column(Integer, default=0)
+    last_rank_battle: Column = Column(DateTime)
+
     created_at = Column(DateTime, nullable=False, default=func.now())
     joined_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
