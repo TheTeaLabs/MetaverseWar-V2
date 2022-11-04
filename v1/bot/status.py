@@ -42,7 +42,7 @@ def bot_status(update, context):
                        f"PVP 전적: {db_user.pvp_win_count} 승 / {db_user.pvp_lose_count} 패 , 승률 : {db_user.pvp_win_rate}\n" \
                        f"시나리오 진행도: {db_user.scenario_step}\n" \
                        f"가입 일자 : {db_user.created_at}\n\n"
-            context.bot.edit_message_text(text=text,
+            context.bot.edit_message_text(text=text, parse_mode='HTML',
                                           chat_id=update.callback_query.message.chat_id,
                                           message_id=update.callback_query.message.message_id,
                                           reply_markup=status_main)
@@ -129,7 +129,7 @@ def bot_status(update, context):
                     db.session.commit()
                     db.session.refresh(db_user)
                     text = soldier_status_text(db_user)
-                    context.bot.edit_message_text(text=text,
+                    context.bot.edit_message_text(text=text, parse_mode='HTML',
                                                   chat_id=update.callback_query.message.chat_id,
                                                   message_id=update.callback_query.message.message_id,
                                                   reply_markup=status_main)
@@ -243,7 +243,7 @@ def bot_status(update, context):
 
                     db.session.commit()
                     text = soldier_status_text(db_user)
-                    context.bot.edit_message_text(text=text,
+                    context.bot.edit_message_text(text=text, parse_mode='HTML',
                                                   chat_id=update.callback_query.message.chat_id,
                                                   message_id=update.callback_query.message.message_id,
                                                   reply_markup=status_main)
@@ -266,7 +266,8 @@ def soldier_status_text(db_user: UserModel):
            f"레이팅 : {db_user.pvp_rating}\n" \
            f"PVP 전적: {db_user.pvp_win_count} 승 / {db_user.pvp_lose_count} 패 , 승률 : {db_user.pvp_win_rate}\n" \
            f"시나리오 진행도: {db_user.scenario_step}\n" \
-           f"가입 일자 : {db_user.created_at}\n\n"
+           f"가입 일자 : {db_user.created_at}\n" \
+           f"<strong>보유 포인트 : {db_user.cash_point}</strong>\n\n"
     if soldier1_info:
         text += f"1번째 전투 병사 정보: \n" \
                 f"병사 이름 : {soldier1_info.name}\n" \

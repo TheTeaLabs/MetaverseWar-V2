@@ -19,7 +19,7 @@ from bot.status import bot_status, soldier_status_text
 from env import BOT_TOKEN
 from models.user import UserModel
 from util.battle_util import match_making, battle, battle_msg
-from util.soldier_util import create_soldier, init_equipment, get_soldier_info
+from util.soldier_util import init_create_soldier, init_equipment, get_soldier_info
 
 updater = Updater(token=BOT_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
@@ -178,7 +178,7 @@ def callback_get(update, context):
             except IntegrityError as error:
                 raise error
             db.session.refresh(user)
-            init_solder = create_soldier(update)
+            init_solder = init_create_soldier(update)
             init_equipment(update, init_solder)
 
             BOT.sendMessage(chat_id=update.callback_query.message.chat_id,

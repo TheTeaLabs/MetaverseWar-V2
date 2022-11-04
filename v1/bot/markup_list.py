@@ -1,6 +1,7 @@
 from fastapi_sqlalchemy import db
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
+from env import SOLDIER_PRICE, EQUIPMENT_PRICE
 from models.equipment import EquipmentModel
 from models.soldier import SoldierModel
 from models.user import UserModel
@@ -22,7 +23,7 @@ def init_markup(db_user: UserModel):
     else:
         markup = InlineKeyboardMarkup([
             [InlineKeyboardButton('내 정보', callback_data="status_main")],
-            [InlineKeyboardButton('상점(준비 중)', callback_data="shop_mainNotYet")],
+            [InlineKeyboardButton('상점', callback_data="shop_main")],
             [InlineKeyboardButton('랭킹', callback_data="ranking_1")]
         ])
     return markup
@@ -149,8 +150,8 @@ def equipment_list(db_user: UserModel, soldier_id: int, equip_type: str):
 
 
 shop_main = InlineKeyboardMarkup([
-    [InlineKeyboardButton('병사 구매', callback_data="shop_soldier")],
-    [InlineKeyboardButton('장비 구매(준비중)', callback_data="shop_equipment")],
+    [InlineKeyboardButton(f"병사 구매 : {SOLDIER_PRICE}pt 소모", callback_data="shop_soldier")],
+    [InlineKeyboardButton(f'장비 구매 : {EQUIPMENT_PRICE}pt 소모', callback_data="shop_equipment")],
     [InlineKeyboardButton('이전 으로', callback_data="init")]
 ])
 

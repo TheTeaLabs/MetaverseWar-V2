@@ -23,6 +23,8 @@ class UserModel(Base):
     scenario_step = Column(String(16))
     win_straight = Column(Integer, default=0)
 
+    cash_point = Column(Integer, default=0)
+
     created_at = Column(DateTime, nullable=False, default=func.now())
     joined_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, onupdate=func.now())
