@@ -16,16 +16,20 @@ def bot_shop(update, context):
             db_user = db.session.query(UserModel).filter(
                 UserModel.chat_id == update.callback_query.message.chat_id).one_or_none()
             text = f"<strong>상점</strong>\n" \
-                   f"보유 포인트 : {db_user.cash_point}"
+                   f"보유 포인트 : {db_user.cash_point}\n" \
+                   "<strong>한번만 눌러주시기 바랍니다.</strong>"
             context.bot.edit_message_text(text=text, parse_mode='HTML',
                                           chat_id=update.callback_query.message.chat_id,
                                           message_id=update.callback_query.message.message_id,
                                           reply_markup=shop_main)
     elif purpose == "soldier":
+        context.bot.edit_message_text(text="Wait for purchase",
+                                      chat_id=update.callback_query.message.chat_id,
+                                      message_id=update.callback_query.message.message_id)
         with db():
             db_user = db.session.query(UserModel).filter(
                 UserModel.chat_id == update.callback_query.message.chat_id).one_or_none()
-            if db_user.cash_point <= SOLDIER_PRICE:
+            if db_user.cash_point < SOLDIER_PRICE:
                 text = "포인트가 부족합니다."
                 context.bot.edit_message_text(text=text,
                                               chat_id=update.callback_query.message.chat_id,
@@ -42,10 +46,13 @@ def bot_shop(update, context):
                                           message_id=update.callback_query.message.message_id,
                                           reply_markup=shop_main)
     elif purpose == "equipment":
+        context.bot.edit_message_text(text="Wait for purchase",
+                                      chat_id=update.callback_query.message.chat_id,
+                                      message_id=update.callback_query.message.message_id)
         with db():
             db_user = db.session.query(UserModel).filter(
                 UserModel.chat_id == update.callback_query.message.chat_id).one_or_none()
-            if db_user.cash_point <= EQUIPMENT_PRICE:
+            if db_user.cash_point < EQUIPMENT_PRICE:
                 text = "포인트가 부족합니다."
                 context.bot.edit_message_text(text=text,
                                               chat_id=update.callback_query.message.chat_id,

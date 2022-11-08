@@ -68,6 +68,12 @@ status_to_equip_main = InlineKeyboardMarkup([
 )
 
 
+def status_to_equip_type_list(equip_type: str):
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton('Back', callback_data=f"status_equipment_list_{equip_type}")]]
+    )
+
+
 def status_soldier_select_order(soldier_idx: int):
     button_list = [
         [InlineKeyboardButton("1번째 병사", callback_data=f'status_select_soldier_set_{soldier_idx}_1')

@@ -86,16 +86,22 @@ def battle_state(update, context):
                 text=f"{db_user.first_name} {db_user.last_name} , 전투 병사를 지정해야 합니다.",
                 chat_id=update.message.chat_id)
             return
-        if db_user.last_rank_battle.date() < datetime.date.today():
-            db_user.rank_battle_count = 1
-        if db_user.last_rank_battle.date() >= datetime.date.today():
-            if db_user.rank_battle_count >= 10:
-                context.bot.send_message(
-                    text=f"{db_user.first_name} {db_user.last_name} , 하루 최대 pvp 참여 횟수에 도달하였습니다.",
-                    chat_id=update.message.chat_id)
-                return
-            else:
-                db_user.rank_battle_count += 1
+        if db_user.last_rank_battle:
+            if db_user.last_rank_battle.date() < datetime.date.today():
+                db_user.last_rank_battle = datetime.datetime.now()
+                db_user.rank_battle_count = 1
+            if db_user.last_rank_battle.date() >= datetime.date.today():
+                if db_user.rank_battle_count >= 10:
+                    context.bot.send_message(
+                        text=f"{db_user.first_name} {db_user.last_name} , exceed pvp count today.",
+                        chat_id=update.message.chat_id)
+                    return
+                else:
+                    db_user.last_rank_battle = datetime.datetime.now()
+                    db_user.rank_battle_count += 1
+        else:
+            db_user.last_rank_battle = datetime.datetime.now()
+            db_user.rank_battle_count += 1
         db.session.commit()
         db.session.refresh(db_user)
 
