@@ -156,11 +156,12 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
                 db_user.pvp_lose_count += 1
                 db_user.pvp_rating -= 10
                 db_user.win_straight = 0
+                db_user.cash_point += 30
             db_user.pvp_win_rate = round(
                 ((db_user.pvp_win_count / (db_user.pvp_win_count + db_user.pvp_lose_count)) * 100),
                 2)
-            text = f"✌<b>승리 하셨습니다!</b> 포인트 + 100, 레이팅 +10\n현재 레이팅 : {db_user.pvp_rating}" \
-                if win_flag else f"😢<b>패배 하였습니다!</b> 레이팅 -10\n현재 레이팅 : {db_user.pvp_rating}"
+            text = f"✌<b>승리 하셨습니다!\n</b>포인트 + 100, 레이팅 +10\n현재 레이팅 : {db_user.pvp_rating}" \
+                if win_flag else f"😢<b>패배 하였습니다!\n</b>포인트 +30 레이팅 -10\n현재 레이팅 : {db_user.pvp_rating}"
             if db_user.win_straight >= 2:
                 text += f'\n 🔥 {db_user.win_straight} 연승 중🔥 '
             db.session.commit()

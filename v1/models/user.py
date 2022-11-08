@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, func, Integer, Float
+from sqlalchemy import Column, String, DateTime, func, Integer, Float, ForeignKey, Date
 
 from models import Base, engine
 
@@ -39,3 +39,14 @@ class UserModel(Base):
 
 
 UserModel.__table__.create(bind=engine, checkfirst=True)
+
+
+class DailyCheckModel(Base):
+    __tablename__ = "user_daily_check"
+    idx = Column(Integer, primary_key=True, autoincrement=True)
+    chat_id = Column(String(36), ForeignKey(UserModel.chat_id))
+    checked_at = Column(Date)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+
+
+DailyCheckModel.__table__.create(bind=engine, checkfirst=True)

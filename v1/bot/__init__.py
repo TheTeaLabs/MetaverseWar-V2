@@ -17,7 +17,7 @@ from bot.ranking import bot_ranking
 from bot.shop import bot_shop
 from bot.status import bot_status, soldier_status_text
 from env import BOT_TOKEN
-from models.user import UserModel
+from models.user import UserModel, DailyCheckModel
 from util.battle_util import match_making, battle, battle_msg
 from util.soldier_util import init_create_soldier, init_equipment, get_soldier_info
 
@@ -56,9 +56,9 @@ Contact : @gryptogolo
                 )
             else:
                 # 최근 접속 시간 갱신
-                db_user.joined_at = datetime.datetime.now()
-                db.session.commit()
-                db.session.refresh(db_user)
+                # db_user.joined_at = datetime.datetime.now()
+                # db.session.commit()
+                # db.session.refresh(db_user)
                 text = 'Welcome to MetaverseWar'
                 if not db_user.main_soldier:
                     text += '\n\n<b>메인 전투 병사를 지정 하셔야 합니다.</b>'
@@ -153,19 +153,38 @@ def show_ranking_state(update, context):
     return
 
 
-def test_state(update, context):
+def daily_check_state(update, context):
     with db():
         db_user = db.session.query(UserModel).filter(
             UserModel.chat_id == update.message.from_user.id).one_or_none()
-        init_equipment(update, get_soldier_info(db_user.main_soldier))
-    return
+        text = f"<strong>{db_user.get_fullname()} 님,\n{datetime.date.today()} 출석을 환영합니다!</strong> " \
+               f"\n출석 보상 : 300 포인트"
+        if db_user:
+            if db_user.joined_at.date() >= datetime.date.today():
+                return
+            db_user.joined_at = datetime.datetime.now()
+            db_user.cash_point += 300
+            db.session.add(
+                DailyCheckModel(chat_id=db_user.chat_id, checked_at=datetime.date.today()))
+            db.session.commit()
+            context.bot.send_message(
+                chat_id=update.message.chat_id, parse_mode='HTML'
+                , text=text)
+
+
+# def test_state(update, context):
+#     with db():
+#         db_user = db.session.query(UserModel).filter(
+#             UserModel.chat_id == update.message.from_user.id).one_or_none()
+#         init_equipment(update, get_soldier_info(db_user.main_soldier))
+#     return
 
 
 start_handler = CommandHandler('start', init_state)
 battle_handler = CommandHandler(['battle', 'pvp'], battle_state)
 info_handler = CommandHandler(['info'], my_info_state)
 ranking_handler = CommandHandler(['ranking', 'rank'], show_ranking_state)
-test_handler = CommandHandler('test', test_state)
+test_handler = CommandHandler('check', daily_check_state)
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(battle_handler)

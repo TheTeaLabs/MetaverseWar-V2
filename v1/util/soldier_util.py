@@ -76,7 +76,7 @@ def create_equipment(update):
                                   star=1,
                                   stat_atk=random.randint(1,
                                                           3) if equip_type == EquipmentType.Weapon.value else 0,
-                                  stat_def=random.randint(2,
+                                  stat_def=random.randint(3,
                                                           5) if equip_type != EquipmentType.Weapon.value else 0)
         db.session.add(db_equip)
         db.session.commit()
