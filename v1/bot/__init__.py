@@ -211,7 +211,8 @@ def callback_get(update, context):
         with db():
             user = UserModel(chat_id=update.callback_query.message.chat_id,
                              first_name=update.callback_query.message.chat.first_name,
-                             last_name=update.callback_query.message.chat.last_name)
+                             last_name=update.callback_query.message.chat.last_name,
+                             cash_point=5000)
             db.session.add(user)
             try:
                 db.session.commit()
