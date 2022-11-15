@@ -12,15 +12,17 @@ from util.soldier_util import get_soldier_info
 def match_making(chat_id: str, db_user: UserModel):
     with db():
         get_match_list = db.session.query(UserModel).filter(
-            (UserModel.chat_id != chat_id) & (UserModel.main_soldier.is_not(None))).order_by(
+            (UserModel.chat_id != chat_id) & (UserModel.main_soldier.is_not(None)) & (
+                    func.abs(UserModel.pvp_rating - db_user.pvp_rating) <= 200)).order_by(
             func.abs(UserModel.pvp_rating - db_user.pvp_rating)).limit(50).all()
+    if get_match_list:
+        db_opponent = random.choice(get_match_list)
 
-    db_opponent = random.choice(get_match_list)
-
-    user_nft_info = get_soldier_info(db_user.main_soldier)
-    opponent_nft_info = get_soldier_info(db_opponent.main_soldier)
-    return {'user': user_nft_info, 'opponent': opponent_nft_info, "user_info": db_user,
-            "opponent_info": db_opponent}
+        user_nft_info = get_soldier_info(db_user.main_soldier)
+        opponent_nft_info = get_soldier_info(db_opponent.main_soldier)
+        return {'user': user_nft_info, 'opponent': opponent_nft_info, "user_info": db_user,
+                "opponent_info": db_opponent, 'rs': True}
+    return {'rs': False}
 
 
 def battle(my_soldier: SoldierModel, enemy_soldier: SoldierModel):
@@ -146,22 +148,29 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
         with db():
             db_user = db.session.query(UserModel).filter(
                 UserModel.chat_id == update.message.from_user.id).one_or_none()
-
+            rating_before = db_user.pvp_rating
+            tier_before = db_user.get_pvp_tier()
             if win_flag:
+                rating_amount = elo_calculate(user_info, opponent_info)
                 db_user.pvp_win_count += 1
-                db_user.pvp_rating += 10
+                db_user.pvp_rating += rating_amount
                 db_user.win_straight += 1
                 db_user.cash_point += 100
             else:
+                rating_amount = elo_calculate(opponent_info, user_info)
                 db_user.pvp_lose_count += 1
-                db_user.pvp_rating -= 10
+                db_user.pvp_rating -= rating_amount
                 db_user.win_straight = 0
                 db_user.cash_point += 30
             db_user.pvp_win_rate = round(
                 ((db_user.pvp_win_count / (db_user.pvp_win_count + db_user.pvp_lose_count)) * 100),
                 2)
-            text = f"✌<b>승리 하셨습니다!\n</b>포인트 + 100, 레이팅 +10\n현재 레이팅 : {db_user.pvp_rating}" \
-                if win_flag else f"😢<b>패배 하였습니다!\n</b>포인트 +30 레이팅 -10\n현재 레이팅 : {db_user.pvp_rating}"
+            tier_after = db_user.get_pvp_tier()
+            text = f"✌<b>승리 하셨습니다!\n</b>포인트 + 100, 레이팅 +{rating_amount}\n나의 레이팅 : {rating_before} -> {db_user.pvp_rating}" \
+                if win_flag else f"😢<b>패배 하였습니다!\n</b>포인트 +30 레이팅 -{rating_amount}\n나의 레이팅 : {rating_before} -> {db_user.pvp_rating}"
+            text += f"\n상대 레이팅: {opponent_info.pvp_rating}"
+            if tier_before != tier_after:
+                text += f"\n\n<strong>PVP 계급이 변경되었습니다. \n {tier_before} -> {tier_after}</strong>"
             if db_user.win_straight >= 2:
                 text += f'\n 🔥 {db_user.win_straight} 연승 중🔥 '
             db.session.commit()
@@ -203,3 +212,14 @@ class SynergyData:
             elif 'infantry' in data and 'archer' in data:
                 return_dict['penalty'] = reverse_data.get('infantry')
         return return_dict
+
+
+def elo_calculate(winner_info: UserModel, loser_info: UserModel):
+    elo_constant = 30
+    if 30 < winner_info.get_game_count() <= 50:
+        elo_constant = 40
+    elif winner_info.get_game_count() <= 30:
+        elo_constant = 60
+    elo_result = int(
+        elo_constant * (1 / pow(10, (winner_info.pvp_rating - loser_info.pvp_rating) / 400)))
+    return elo_result if elo_result > 0 else 1

@@ -1,3 +1,4 @@
+from fastapi_sqlalchemy import db
 from sqlalchemy import Column, String, DateTime, func, Integer, Float, ForeignKey, Date
 
 from models import Base, engine
@@ -36,6 +37,33 @@ class UserModel(Base):
     def get_fullname(self):
         return f"{self.first_name if self.first_name else ''} " \
                f"{self.last_name if self.last_name else ''}"
+
+    def get_game_count(self):
+        return self.pvp_lose_count + self.pvp_win_count
+
+    def get_pvp_tier(self):
+        tier = None
+        if self.pvp_rating <= 999:
+            tier = "Iron"
+        elif 1000 <= self.pvp_rating <= 1199:
+            tier = "Bronze"
+        elif 1200 <= self.pvp_rating <= 1399:
+            tier = "Silver"
+        elif 1400 <= self.pvp_rating <= 1599:
+            tier = "Gold"
+        elif 1600 <= self.pvp_rating <= 1799:
+            tier = "Platinum"
+        elif 1800 <= self.pvp_rating <= 1999:
+            tier = "Diamond"
+        elif 2000 <= self.pvp_rating:
+            tier = "Master"
+            with db():
+                top_player_count = db.session.query(UserModel).filter(
+                    (UserModel.chat_id != self.chat_id) & (
+                            UserModel.pvp_rating >= self.pvp_rating)).count()
+                if top_player_count <= 9:
+                    tier = "Challenger"
+        return tier
 
 
 UserModel.__table__.create(bind=engine, checkfirst=True)

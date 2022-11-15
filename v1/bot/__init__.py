@@ -102,10 +102,15 @@ def battle_state(update, context):
         else:
             db_user.last_rank_battle = datetime.datetime.now()
             db_user.rank_battle_count += 1
+        match = match_making(update.message.from_user.id, db_user)
+        if not match['rs']:
+            db.session.rollback()
+            context.bot.send_message(
+                text=f"{db_user.first_name} {db_user.last_name} , 레이팅 차이로 매칭에 실패 하였습니다.",
+                chat_id=update.message.chat_id)
+            return
         db.session.commit()
         db.session.refresh(db_user)
-
-        match = match_making(update.message.from_user.id, db_user)
         battle_ = battle(match['user'], match['opponent'])
         battle_msg(update, context, battle_, 'pvp', match['user_info'], match['opponent_info'])
         return

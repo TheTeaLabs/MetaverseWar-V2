@@ -264,6 +264,7 @@ def soldier_status_text(db_user: UserModel):
 
     text = f"유저명: {db_user.get_fullname()}\n" \
            f"전투 병사: {db_user.main_soldier}\n" \
+           f"PVP 계급: {db_user.get_pvp_tier()}\n" \
            f"레이팅 : {db_user.pvp_rating}\n" \
            f"PVP 전적: {db_user.pvp_win_count} 승 / {db_user.pvp_lose_count} 패 , 승률 : {db_user.pvp_win_rate}\n" \
            f"시나리오 진행도: {db_user.scenario_step}\n" \
