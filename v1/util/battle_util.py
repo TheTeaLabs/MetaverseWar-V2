@@ -168,12 +168,13 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
             tier_after = db_user.get_pvp_tier()
             text = f"✌<b>승리 하셨습니다!\n</b>포인트 + 100, 레이팅 +{rating_amount}\n나의 레이팅 : {rating_before} -> {db_user.pvp_rating}" \
                 if win_flag else f"😢<b>패배 하였습니다!\n</b>포인트 +30 레이팅 -{rating_amount}\n나의 레이팅 : {rating_before} -> {db_user.pvp_rating}"
-            text += f"\n상대 레이팅: {opponent_info.pvp_rating}"
+            text += f"\n상대 레이팅 : {opponent_info.pvp_rating}"
             if tier_before != tier_after:
-                text += f"\n\n<strong>PVP 계급이 변경되었습니다. \n {tier_before} -> {tier_after}</strong>"
+                text += f"\n\n<strong>PVP 티어가 변경되었습니다. \n {tier_before} -> {tier_after}</strong>"
             if db_user.win_straight >= 2:
                 text += f'\n 🔥 {db_user.win_straight} 연승 중🔥 '
             db.session.commit()
+            db.session.refresh(db_user)
 
     elif mode == 'practice':
         text = '✌<b>승리 하셨습니다!</b>' if win_flag else '😢<b>패배 하였습니다!</b>'
@@ -181,15 +182,15 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
 
     if init_attack == user_info.get_fullname():
         text += f"\n\n <b>PVP 결과 </b>\n" \
-                f"(선공)<strong>{user_info.get_fullname()}</strong>: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
-                f"(후공){opponent_info.get_fullname()}: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {enemy_soldier.class_to_kr()}\n" \
+                f"(선공)<strong>{user_info.get_fullname()}</strong>: \n1. 병사 : ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / {my_soldier.class_to_kr()}\n" \
+                f"(후공){opponent_info.get_fullname()}: \n1. 병사 : ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / {enemy_soldier.class_to_kr()}\n" \
                 f"✴ 일기토 : {len(battle_log) - 1} 합"
     else:
         text += f"\n\n <b>PVP 결과 </b>\n" \
-                f"(후공)<strong>{user_info.get_fullname()}</strong>: {my_soldier.name} / ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / Class : {my_soldier.class_to_kr()}\n" \
-                f"(선공){opponent_info.get_fullname()}: {enemy_soldier.name} / ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / Class : {enemy_soldier.class_to_kr()}\n" \
+                f"(후공)<strong>{user_info.get_fullname()}</strong>: \n1. 병사 : ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / {my_soldier.class_to_kr()}\n" \
+                f"(선공){opponent_info.get_fullname()}:  \n1. 병사 : ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / {enemy_soldier.class_to_kr()}\n" \
                 f"✴ 일기토 : {len(battle_log) - 1} 합"
-
+    text +=  f"\n 남은 pvp 횟수 : {20 - db_user.rank_battle_count}"
     context.bot.send_message(text=text, parse_mode='HTML',
                              chat_id=update.message.chat.id)
     return

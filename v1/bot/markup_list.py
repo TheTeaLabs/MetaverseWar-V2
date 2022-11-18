@@ -63,6 +63,10 @@ status_to_main = InlineKeyboardMarkup([
     [InlineKeyboardButton('이전 으로', callback_data="status_main")]]
 )
 
+status_to_soldier_main = InlineKeyboardMarkup([
+    [InlineKeyboardButton('이전 으로', callback_data="status_soldier_main")]]
+)
+
 status_to_equip_main = InlineKeyboardMarkup([
     [InlineKeyboardButton('이전 으로', callback_data="status_equipment_main")]]
 )

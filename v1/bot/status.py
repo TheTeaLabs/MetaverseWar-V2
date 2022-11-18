@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 
 from bot.markup_list import status_main, status_soldier_list, \
     status_soldier_select_order, status_soldier_quit_order, status_equipment, equipment_list, \
-    status_to_main, status_to_equip_main, status_to_equip_type_list
+    status_to_main, status_to_equip_main, status_to_equip_type_list, status_to_soldier_main
 from models.equipment import EquipmentModel
 from models.soldier import SoldierModel
 from models.user import UserModel
@@ -98,7 +98,7 @@ def bot_status(update, context):
                 context.bot.edit_message_text(text=soldier_text(db_soldier), parse_mode='HTML',
                                               chat_id=update.callback_query.message.chat_id,
                                               message_id=update.callback_query.message.message_id,
-                                              reply_markup=status_to_main)
+                                              reply_markup=status_to_soldier_main)
         elif purpose == "select":
             select_type = callback_info[2]
             select_purpose = callback_info[3]
@@ -264,7 +264,7 @@ def soldier_status_text(db_user: UserModel):
 
     text = f"유저명: {db_user.get_fullname()}\n" \
            f"전투 병사: {db_user.main_soldier}\n" \
-           f"PVP 계급: {db_user.get_pvp_tier()}\n" \
+           f"PVP 티어: {db_user.get_pvp_tier()}\n" \
            f"레이팅 : {db_user.pvp_rating}\n" \
            f"PVP 전적: {db_user.pvp_win_count} 승 / {db_user.pvp_lose_count} 패 , 승률 : {db_user.pvp_win_rate}\n" \
            f"시나리오 진행도: {db_user.scenario_step}\n" \
