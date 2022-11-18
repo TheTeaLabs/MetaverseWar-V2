@@ -31,7 +31,7 @@ class UserModel(Base):
     last_rank_battle: Column = Column(DateTime)
 
     created_at = Column(DateTime, nullable=False, default=func.now())
-    joined_at = Column(DateTime, nullable=False, default=func.now())
+    joined_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, onupdate=func.now())
 
     def get_fullname(self):

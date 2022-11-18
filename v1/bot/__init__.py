@@ -55,10 +55,6 @@ Contact : @gryptogolo
                     , reply_markup=register_markup
                 )
             else:
-                # 최근 접속 시간 갱신
-                # db_user.joined_at = datetime.datetime.now()
-                # db.session.commit()
-                # db.session.refresh(db_user)
                 text = 'Welcome to MetaverseWar'
                 if not db_user.main_soldier:
                     text += '\n\n<b>메인 전투 병사를 지정 하셔야 합니다.</b>'
@@ -93,7 +89,7 @@ def battle_state(update, context):
             if db_user.last_rank_battle.date() >= datetime.date.today():
                 if db_user.rank_battle_count >= 10:
                     context.bot.send_message(
-                        text=f"{db_user.first_name} {db_user.last_name} , exceed pvp count today.",
+                        text=f"{db_user.first_name} {db_user.last_name} , 하루 게임 횟수 초과 하였습니다.",
                         chat_id=update.message.chat_id)
                     return
                 else:
@@ -189,13 +185,13 @@ start_handler = CommandHandler('start', init_state)
 battle_handler = CommandHandler(['battle', 'pvp'], battle_state)
 info_handler = CommandHandler(['info'], my_info_state)
 ranking_handler = CommandHandler(['ranking', 'rank'], show_ranking_state)
-test_handler = CommandHandler('check', daily_check_state)
+check_handler = CommandHandler('check', daily_check_state)
 
 dispatcher.add_handler(start_handler)
 dispatcher.add_handler(battle_handler)
 dispatcher.add_handler(info_handler)
 dispatcher.add_handler(ranking_handler)
-dispatcher.add_handler(test_handler)
+dispatcher.add_handler(check_handler)
 
 
 def callback_get(update, context):
