@@ -87,7 +87,7 @@ def battle_state(update, context):
                 db_user.last_rank_battle = datetime.datetime.now()
                 db_user.rank_battle_count = 1
             if db_user.last_rank_battle.date() >= datetime.date.today():
-                if db_user.rank_battle_count >= 10:
+                if db_user.rank_battle_count >= 20:
                     context.bot.send_message(
                         text=f"{db_user.first_name} {db_user.last_name} , 하루 게임 횟수 초과 하였습니다.",
                         chat_id=update.message.chat_id)
