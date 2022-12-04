@@ -108,5 +108,5 @@ def send_user_message():
             BOT.sendMessage(chat_id=user.chat_id,
                             text=f"메타버스워 에는 {user.get_fullname()} 님이 필요합니다!\n"
                                  f"잔여 PVP 횟수 : {DAILY_PLAYABLE_COUNT - user.rank_battle_count} 회 \n"
-                                 f"마지막 출석 체크 : {user.joined_at.date()}")
+                                 f"마지막 출석 체크 : {user.joined_at.date() if user.joined_at else None}")
     return
