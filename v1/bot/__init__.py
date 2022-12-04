@@ -16,7 +16,7 @@ from bot.markup_list import init_markup, register_markup
 from bot.ranking import bot_ranking
 from bot.shop import bot_shop
 from bot.status import bot_status, soldier_status_text
-from env import BOT_TOKEN
+from env import BOT_TOKEN, DAILY_PLAYABLE_COUNT
 from models.user import UserModel, DailyCheckModel
 from util.battle_util import match_making, battle, battle_msg
 from util.soldier_util import init_create_soldier, init_equipment, get_soldier_info
@@ -87,7 +87,7 @@ def battle_state(update, context):
                 db_user.last_rank_battle = datetime.datetime.now()
                 db_user.rank_battle_count = 1
             elif db_user.last_rank_battle.date() >= datetime.date.today():
-                if db_user.rank_battle_count >= 20:
+                if db_user.rank_battle_count >= DAILY_PLAYABLE_COUNT:
                     context.bot.send_message(
                         text=f"{db_user.first_name} {db_user.last_name} , 하루 게임 횟수 초과 하였습니다.",
                         chat_id=update.message.chat_id)

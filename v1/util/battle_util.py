@@ -3,6 +3,7 @@ import random
 from fastapi_sqlalchemy import db
 from sqlalchemy import func
 
+from env import DAILY_PLAYABLE_COUNT
 from models.soldier import SoldierModel
 from models.user import UserModel
 from util.soldier_util import get_soldier_info
@@ -189,7 +190,7 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
                 f"(후공)<strong>{user_info.get_fullname()}</strong>: \n1. 병사 : ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / {my_soldier.class_to_kr()}\n" \
                 f"(선공){opponent_info.get_fullname()}:  \n1. 병사 : ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / {enemy_soldier.class_to_kr()}\n" \
                 f"✴ 일기토 : {len(battle_log) - 1} 합"
-    text += f"\n 남은 pvp 횟수 : {20 - db_user.rank_battle_count}"
+    text += f"\n 남은 pvp 횟수 : {DAILY_PLAYABLE_COUNT - db_user.rank_battle_count}"
     context.bot.send_message(text=text, parse_mode='HTML',
                              chat_id=update.message.chat.id)
     return
