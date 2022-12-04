@@ -86,7 +86,7 @@ def battle_state(update, context):
             if db_user.last_rank_battle.date() < datetime.date.today():
                 db_user.last_rank_battle = datetime.datetime.now()
                 db_user.rank_battle_count = 1
-            if db_user.last_rank_battle.date() >= datetime.date.today():
+            elif db_user.last_rank_battle.date() >= datetime.date.today():
                 if db_user.rank_battle_count >= 20:
                     context.bot.send_message(
                         text=f"{db_user.first_name} {db_user.last_name} , 하루 게임 횟수 초과 하였습니다.",
@@ -161,13 +161,15 @@ def daily_check_state(update, context):
         text = f"<strong>{db_user.get_fullname()} 님,\n{datetime.date.today()} 출석을 환영합니다!</strong> " \
                f"\n출석 보상 : 300 포인트"
         if db_user:
-            if db_user.joined_at.date() >= datetime.date.today():
-                return
-            db_user.joined_at = datetime.datetime.now()
-            db_user.cash_point += 300
-            db.session.add(
-                DailyCheckModel(chat_id=db_user.chat_id, checked_at=datetime.date.today()))
-            db.session.commit()
+            if db_user.joined_at:
+                if db_user.joined_at.date() >= datetime.date.today():
+                    return
+            else:
+                db_user.joined_at = datetime.datetime.now()
+                db_user.cash_point += 300
+                db.session.add(
+                    DailyCheckModel(chat_id=db_user.chat_id, checked_at=datetime.date.today()))
+                db.session.commit()
             context.bot.send_message(
                 chat_id=update.message.chat_id, parse_mode='HTML'
                 , text=text)
