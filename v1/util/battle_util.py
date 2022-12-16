@@ -1,9 +1,9 @@
 import random
-import time
 
 from fastapi_sqlalchemy import db
 from sqlalchemy import func
 
+from env import DAILY_PLAYABLE_COUNT
 from models.soldier import SoldierModel
 from models.user import UserModel
 from util.soldier_util import get_soldier_info
@@ -13,7 +13,7 @@ def match_making(chat_id: str, db_user: UserModel):
     with db():
         get_match_list = db.session.query(UserModel).filter(
             (UserModel.chat_id != chat_id) & (UserModel.main_soldier.is_not(None)) & (
-                    func.abs(UserModel.pvp_rating - db_user.pvp_rating) <= 200)).order_by(
+                    func.abs(UserModel.pvp_rating - db_user.pvp_rating) <= 1000)).order_by(
             func.abs(UserModel.pvp_rating - db_user.pvp_rating)).limit(50).all()
     if get_match_list:
         db_opponent = random.choice(get_match_list)
@@ -190,7 +190,7 @@ def battle_msg(update, context, battle_, mode: str, user_info: UserModel, oppone
                 f"(후공)<strong>{user_info.get_fullname()}</strong>: \n1. 병사 : ATK : {my_soldier.stat_atk} / DEF : {my_soldier.stat_def} / {my_soldier.class_to_kr()}\n" \
                 f"(선공){opponent_info.get_fullname()}:  \n1. 병사 : ATK : {enemy_soldier.stat_atk} / DEF : {enemy_soldier.stat_def} / {enemy_soldier.class_to_kr()}\n" \
                 f"✴ 일기토 : {len(battle_log) - 1} 합"
-    text +=  f"\n 남은 pvp 횟수 : {20 - db_user.rank_battle_count}"
+    text += f"\n 남은 pvp 횟수 : {DAILY_PLAYABLE_COUNT - db_user.rank_battle_count}"
     context.bot.send_message(text=text, parse_mode='HTML',
                              chat_id=update.message.chat.id)
     return
@@ -216,11 +216,15 @@ class SynergyData:
 
 
 def elo_calculate(winner_info: UserModel, loser_info: UserModel):
-    elo_constant = 30
+    elo_constant = 20
     if 30 < winner_info.get_game_count() <= 50:
-        elo_constant = 40
+        elo_constant = 30
     elif winner_info.get_game_count() <= 30:
-        elo_constant = 60
+        elo_constant = 40
     elo_result = int(
         elo_constant * (1 / pow(10, (winner_info.pvp_rating - loser_info.pvp_rating) / 400)))
+    if elo_result <= 0:
+        return 1
+    if abs(elo_result) >= 100:
+        elo_result = 100
     return elo_result if elo_result > 0 else 1

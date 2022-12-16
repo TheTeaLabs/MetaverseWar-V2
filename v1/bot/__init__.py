@@ -16,7 +16,7 @@ from bot.markup_list import init_markup, register_markup
 from bot.ranking import bot_ranking
 from bot.shop import bot_shop
 from bot.status import bot_status, soldier_status_text
-from env import BOT_TOKEN
+from env import BOT_TOKEN, DAILY_PLAYABLE_COUNT
 from models.user import UserModel, DailyCheckModel
 from util.battle_util import match_making, battle, battle_msg
 from util.soldier_util import init_create_soldier, init_equipment, get_soldier_info
@@ -86,8 +86,8 @@ def battle_state(update, context):
             if db_user.last_rank_battle.date() < datetime.date.today():
                 db_user.last_rank_battle = datetime.datetime.now()
                 db_user.rank_battle_count = 1
-            if db_user.last_rank_battle.date() >= datetime.date.today():
-                if db_user.rank_battle_count >= 20:
+            elif db_user.last_rank_battle.date() >= datetime.date.today():
+                if db_user.rank_battle_count >= DAILY_PLAYABLE_COUNT:
                     context.bot.send_message(
                         text=f"{db_user.first_name} {db_user.last_name} , 하루 게임 횟수 초과 하였습니다.",
                         chat_id=update.message.chat_id)
@@ -161,13 +161,15 @@ def daily_check_state(update, context):
         text = f"<strong>{db_user.get_fullname()} 님,\n{datetime.date.today()} 출석을 환영합니다!</strong> " \
                f"\n출석 보상 : 300 포인트"
         if db_user:
-            if db_user.joined_at.date() >= datetime.date.today():
-                return
-            db_user.joined_at = datetime.datetime.now()
-            db_user.cash_point += 300
-            db.session.add(
-                DailyCheckModel(chat_id=db_user.chat_id, checked_at=datetime.date.today()))
-            db.session.commit()
+            if db_user.joined_at:
+                if db_user.joined_at.date() >= datetime.date.today():
+                    return
+            else:
+                db_user.joined_at = datetime.datetime.now()
+                db_user.cash_point += 300
+                db.session.add(
+                    DailyCheckModel(chat_id=db_user.chat_id, checked_at=datetime.date.today()))
+                db.session.commit()
             context.bot.send_message(
                 chat_id=update.message.chat_id, parse_mode='HTML'
                 , text=text)

@@ -3,6 +3,8 @@ from fastapi_sqlalchemy import db
 from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 
+from bot import BOT
+from env import DAILY_PLAYABLE_COUNT
 from models.equipment import EquipmentModel
 from models.soldier import SoldierModel
 from models.user import UserModel
@@ -94,4 +96,17 @@ def set_user_wallet_info(user_info: UserInfo):
         except IntegrityError as e:
             db.session.rollback()
             continue
+    return
+
+
+@user_router.post('/send/msg/')
+def send_user_message():
+    user_list = db.session.query(UserModel).all()
+    for user in user_list:
+        user: UserModel
+        if user.rank_battle_count < DAILY_PLAYABLE_COUNT:
+            BOT.sendMessage(chat_id=user.chat_id,
+                            text=f"메타버스워 에는 {user.get_fullname()} 님이 필요합니다!\n"
+                                 f"잔여 PVP 횟수 : {DAILY_PLAYABLE_COUNT - user.rank_battle_count} 회 \n"
+                                 f"마지막 출석 체크 : {user.joined_at.date() if user.joined_at else None}")
     return
