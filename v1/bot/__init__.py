@@ -170,9 +170,9 @@ def daily_check_state(update, context):
                 db.session.add(
                     DailyCheckModel(chat_id=db_user.chat_id, checked_at=datetime.date.today()))
                 db.session.commit()
-            context.bot.send_message(
-                chat_id=update.message.chat_id, parse_mode='HTML'
-                , text=text)
+                context.bot.send_message(
+                    chat_id=update.message.chat_id, parse_mode='HTML'
+                    , text=text)
 
 
 # def test_state(update, context):
