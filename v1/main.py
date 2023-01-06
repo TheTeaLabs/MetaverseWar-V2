@@ -5,7 +5,6 @@ import threading
 
 from fastapi import FastAPI
 from fastapi_sqlalchemy import DBSessionMiddleware
-# from mangum import Mangum
 from starlette.middleware.cors import CORSMiddleware
 
 from bot import updater
@@ -36,6 +35,3 @@ async def root():
     root
     """
     return "metaverseWar api server"
-
-
-# handler = Mangum(app)
