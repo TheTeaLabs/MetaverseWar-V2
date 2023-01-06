@@ -163,14 +163,18 @@ def daily_check_state(update, context):
         if db_user:
             if db_user.joined_at:
                 if db_user.joined_at.date() >= datetime.date.today():
+                    text = f"<strong>{db_user.get_fullname()} 님, 내일 다시 오세요!</strong> "
+                    context.bot.send_message(
+                        chat_id=update.message.chat_id, parse_mode='HTML'
+                        , text=text)
+
                     return
-            else:
-                db_user.joined_at = datetime.datetime.now()
-                db_user.cash_point += 300
-                db.session.add(
+            db_user.joined_at = datetime.datetime.now()
+            db_user.cash_point += 300
+            db.session.add(
                     DailyCheckModel(chat_id=db_user.chat_id, checked_at=datetime.date.today()))
-                db.session.commit()
-                context.bot.send_message(
+            db.session.commit()
+            context.bot.send_message(
                     chat_id=update.message.chat_id, parse_mode='HTML'
                     , text=text)
 
