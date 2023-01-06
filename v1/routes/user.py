@@ -1,3 +1,4 @@
+import telegram
 from fastapi import APIRouter, HTTPException
 from fastapi_sqlalchemy import db
 from pydantic import BaseModel
@@ -49,7 +50,8 @@ def set_user_wallet_info(user_info: UserInfo):
                                enlist_count=nft['basic']['enlist_count'],
                                stat_atk=nft['stats']['atk'],
                                stat_def=nft['stats']['def'],
-                               stat_skill=nft['stats']['skill'] if nft['stats']['skill'] != 'None' else None
+                               stat_skill=nft['stats']['skill'] if nft['stats'][
+                                                                       'skill'] != 'None' else None
                                )
         try:
             db.session.add(soldier)
@@ -69,7 +71,8 @@ def set_user_wallet_info(user_info: UserInfo):
                                    star=nft['basic']['star'],
                                    stat_atk=nft['stats']['atk'],
                                    stat_def=nft['stats']['def'],
-                                   stat_skill=nft['stats']['skill'] if nft['stats']['skill'] != 'None' else None)
+                                   stat_skill=nft['stats']['skill'] if nft['stats'][
+                                                                           'skill'] != 'None' else None)
         try:
             db.session.add(equipment)
             db.session.commit()
@@ -88,7 +91,8 @@ def set_user_wallet_info(user_info: UserInfo):
                                 star=nft['basic']['star'],
                                 stat_atk=nft['stats']['atk'],
                                 stat_def=nft['stats']['def'],
-                                stat_skill=nft['stats']['skill'] if nft['stats']['skill'] != 'None' else None)
+                                stat_skill=nft['stats']['skill'] if nft['stats'][
+                                                                        'skill'] != 'None' else None)
         try:
             db.session.add(weapon)
             db.session.commit()
@@ -100,13 +104,24 @@ def set_user_wallet_info(user_info: UserInfo):
 
 
 @user_router.post('/send/msg/')
-def send_user_message():
+async def send_user_message():
     user_list = db.session.query(UserModel).all()
-    for user in user_list:
-        user: UserModel
-        if user.rank_battle_count < DAILY_PLAYABLE_COUNT:
-            BOT.sendMessage(chat_id=user.chat_id,
-                            text=f"메타버스워 에는 {user.get_fullname()} 님이 필요합니다!\n"
-                                 f"잔여 PVP 횟수 : {DAILY_PLAYABLE_COUNT - user.rank_battle_count} 회 \n"
-                                 f"마지막 출석 체크 : {user.joined_at.date() if user.joined_at else None}")
+
+    async def async_counter(stop):  # 제너레이터 방식으로 만들기
+        count = 0
+        while count < stop:
+            yield count
+            count += 1
+
+    async for user_index in async_counter(len(user_list)):
+        user: UserModel = user_list[user_index]
+        if (not user.rank_battle_count) or user.rank_battle_count < DAILY_PLAYABLE_COUNT:
+            if user.chat_id=='2064961099':
+                try:
+                    BOT.sendMessage(chat_id=user.chat_id,
+                                    text=f"메타버스워 에는 {user.get_fullname()} 님이 필요합니다!\n"
+                                         f"잔여 PVP 횟수 : {DAILY_PLAYABLE_COUNT - user.rank_battle_count} 회 \n"
+                                         f"마지막 출석 체크 : {user.joined_at.date() if user.joined_at else None}")
+                except Exception:
+                    continue
     return
